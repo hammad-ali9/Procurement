@@ -1,0 +1,443 @@
+.auth-page {
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    background: #f0f0f0;
+    /* Soft background to show the margin */
+    font-family: 'Inter', sans-serif;
+    padding: 2rem;
+    /* Added margin from all four sides */
+    box-sizing: border-box;
+}
+
+.auth-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    border-radius: 24px;
+    /* Containerized rounding */
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+}
+
+/* Left Side */
+.auth-left {
+    flex: 1;
+    padding: 1rem 3.5rem;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    /* Safe centering: if content > viewport, it starts at top (no clip) */
+}
+
+.auth-brand-new {
+    margin-top: auto;
+    /* Push from top to center group */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.brand-logo-img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: 8px;
+    /* Rounded corners as requested */
+    background: #fff;
+    /* Ensure it stands out if transparent */
+    padding: 2px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.brand-logo-img.white-border {
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.brand-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #3b82f6;
+}
+
+.brand-name.white {
+    color: #fff;
+}
+
+.auth-content-left {
+    max-width: 400px;
+    /* Reduced from 480px */
+}
+
+.auth-title-large {
+    font-size: 1.5rem;
+    /* Reduced from 1.75rem */
+    font-weight: 700;
+    line-height: 1.1;
+    color: #000;
+    margin-bottom: 0.4rem;
+}
+
+.auth-subtitle-new {
+    font-size: 0.8rem;
+    /* Reduced from 0.88rem */
+    color: #999;
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+}
+
+.social-auth-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.social-btn {
+    width: 38px;
+    /* Reduced from 44px */
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid #eee;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #000;
+    transition: all 0.2s;
+}
+
+.social-btn.google {
+    background: #3b82f6;
+    border-color: #3b82f6;
+    color: #fff;
+}
+
+.social-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    color: #ccc;
+    font-size: 0.75rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #eee;
+}
+
+.auth-form-new {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.input-group-new {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 0.3rem 0.75rem;
+    /* Reduced height and width */
+    transition: border-color 0.2s;
+}
+
+.input-group-new:focus-within {
+    border-color: #000;
+}
+
+.input-group-new label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #999;
+}
+
+.input-group-new input {
+    border: none;
+    outline: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #000;
+    background: transparent;
+}
+
+.pass-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.pass-wrap input {
+    flex: 1;
+}
+
+.pass-eye {
+    font-size: 1.25rem;
+    color: #999;
+    cursor: pointer;
+}
+
+.btn-main-auth {
+    background: #000;
+    color: #fff;
+    padding: 0.85rem;
+    /* Reduced height */
+    border-radius: 10px;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 0.4rem;
+    transition: background 0.2s;
+}
+
+.btn-main-auth:hover {
+    background: #333;
+}
+
+.auth-footer-new {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.88rem;
+    color: #999;
+    font-weight: 600;
+    margin-bottom: auto;
+    /* Push from bottom to center group */
+}
+
+.form-options {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.5rem;
+}
+
+.forgot-link {
+    font-size: 0.75rem;
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+}
+
+.switch-link {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 800;
+}
+
+.switch-link:hover {
+    text-decoration: underline;
+}
+
+/* Right Side */
+.auth-right {
+    flex: 1.2;
+    position: relative;
+    overflow: visible;
+    background: transparent;
+    /* Remove any default background */
+    margin: 0;
+    /* Removed margin to eliminate the grey background bleed */
+    padding: 1rem;
+    /* Added internal margin for the image */
+    box-sizing: border-box;
+}
+
+.auth-image-wrapper {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    overflow: hidden;
+    border-radius: 20px;
+    /* Standard rounded corner on all sides */
+    background: #000;
+}
+
+.auth-bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.auth-right::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    /* Stronger black shadow at the bottom */
+    background: linear-gradient(to bottom,
+            rgba(0, 0, 0, 0) 40%,
+            rgba(0, 0, 0, 0.6) 100%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.auth-right-top-brand {
+    position: absolute;
+    top: 55%;
+    /* Slightly adjusted from 60% for better balance */
+    right: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    z-index: 2;
+}
+
+/* Legacy branding styles removed */
+
+.auth-stats-card {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: #fff;
+    border-radius: 24px;
+    /* Standard rounded corner */
+    padding: 1.75rem 1.5rem 1rem;
+    width: 220px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+}
+
+.stats-val {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    color: #000;
+}
+
+.stats-desc {
+    font-size: 0.85rem;
+    color: #333;
+    margin: 0.5rem 0 1.5rem;
+    line-height: 1.2;
+    font-weight: 600;
+    max-width: 140px;
+}
+
+.stats-btn {
+    align-self: flex-end;
+    width: 140px;
+    /* Reduced width from 180px */
+    padding: 0.88rem;
+    /* Reduced height */
+    background: #000;
+    color: #fff;
+    border-radius: 40px;
+    border: none;
+    font-weight: 750;
+    cursor: pointer;
+    margin-right: -15px;
+    margin-bottom: -12px;
+    font-size: 0.85rem;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.auth-center-branding {
+    position: absolute;
+    top: 70%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #fff;
+    z-index: 2;
+    width: 80%;
+}
+
+.branding-title {
+    font-size: 1.5rem;
+    /* Reduced from 2rem */
+    font-weight: 750;
+    margin-bottom: 0.4rem;
+}
+
+.branding-sub {
+    font-size: 0.8rem;
+    /* Reduced from 0.88rem */
+    line-height: 1.4;
+    opacity: 0.9;
+}
+
+.auth-chips-row {
+    position: absolute;
+    bottom: 3rem;
+    left: 2rem;
+    right: 2rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    z-index: 2;
+}
+
+.auth-chip {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.4rem 0.88rem;
+    /* Reduced from 0.6rem 1.25rem */
+    border-radius: 50px;
+    color: #fff;
+    font-size: 0.75rem;
+    /* Reduced from 0.9rem */
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.chip-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+}
+
+.chip-icon.orange {
+    background: #f97316;
+}
+
+.chip-icon.green {
+    background: #bef264;
+    color: #000;
+}
+
+.chip-icon.blue {
+    background: #7dd3fc;
+    color: #000;
+}
+
+.chip-icon.pink {
+    background: #fda4af;
+    color: #000;
+}
+
+@media (max-width: 1024px) {
+    .auth-right {
+        display: none;
+    }
+
+    .auth-left {
+        padding: 3rem 2rem;
+    }
+}
