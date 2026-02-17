@@ -6,7 +6,7 @@ import './InvoiceEditor.css'
 export default function InvoiceEditor() {
     const { id } = useParams()
     const navigate = useNavigate()
-    const { getInvoiceById, updateInvoice, companyLogo, setCompanyLogo } = useProcurement()
+    const { getInvoiceById, updateInvoice, companyLogo, setCompanyLogo, traderProfile, preferences } = useProcurement()
 
     const [invoice, setInvoice] = useState(null)
     const [activeTab, setActiveTab] = useState('items') // 'details', 'items', 'payment'
@@ -18,7 +18,7 @@ export default function InvoiceEditor() {
             setInvoice({
                 ...data,
                 dueDate: data.dueDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-                billingAddress: data.billingAddress || '123 Business Way, Suite 100\nTech City, TC 54321',
+                billingAddress: data.billingAddress || traderProfile?.officeAddress || '123 Business Way, Suite 100\nTech City, TC 54321',
                 paymentTerms: data.paymentTerms || 'Net 15',
                 notes: data.notes || 'Please include the invoice number on your payment reference. Thank you!'
             })
@@ -78,7 +78,7 @@ export default function InvoiceEditor() {
             {/* Left Panel - Professional Controls */}
             <div className="editor-controls-panel">
                 <div className="editor-top-nav">
-                    <button className="btn-go-back-pill" onClick={() => navigate(`/dashboard/extract/${invoice.groupId}`)}>
+                    <button className="btn-go-back-pill" onClick={() => navigate(-1)}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
                         <span>Go Back</span>
                     </button>
@@ -285,7 +285,7 @@ export default function InvoiceEditor() {
                     <button className="btn-download" onClick={handleDownload}>
                         Download PDF
                     </button>
-                    <button className="btn-cancel" onClick={() => navigate(`/dashboard/extract/${invoice.groupId}`)}>Discard Changes</button>
+                    <button className="btn-cancel" onClick={() => navigate(-1)}>Discard Changes</button>
                 </div>
             </div>
 
@@ -305,7 +305,7 @@ export default function InvoiceEditor() {
                                 )}
                             </div>
                             <div>
-                                <h2>Procurement Pro</h2>
+                                <h2>{traderProfile.businessName || 'Procurement Pro'}</h2>
                                 <p>Financial Operations</p>
                             </div>
                         </div>
@@ -348,9 +348,9 @@ export default function InvoiceEditor() {
                                 <tr key={item.id}>
                                     <td className="w-50">{item.desc}</td>
                                     <td>{item.qty}</td>
-                                    <td>${item.rate.toLocaleString()}</td>
+                                    <td>{preferences?.currency || 'Rs.'} {item.rate.toLocaleString()}</td>
                                     <td className="text-right text-bold">
-                                        ${(item.qty * item.rate).toLocaleString()}
+                                        {preferences?.currency || 'Rs.'} {(item.qty * item.rate).toLocaleString()}
                                     </td>
                                 </tr>
                             )) : (
@@ -371,19 +371,19 @@ export default function InvoiceEditor() {
                         <div className="calc-block">
                             <div className="summary-row">
                                 <span>Subtotal</span>
-                                <span>${subtotal.toLocaleString()}</span>
+                                <span>{preferences?.currency || 'Rs.'} {subtotal.toLocaleString()}</span>
                             </div>
                             <div className="summary-row">
                                 <span>Tax ({invoice.taxRate}%)</span>
-                                <span>${taxAmount.toLocaleString()}</span>
+                                <span>{preferences?.currency || 'Rs.'} {taxAmount.toLocaleString()}</span>
                             </div>
                             <div className="summary-row">
                                 <span>Delivery</span>
-                                <span>${invoice.delivery.toLocaleString()}</span>
+                                <span>{preferences?.currency || 'Rs.'} {invoice.delivery.toLocaleString()}</span>
                             </div>
                             <div className="summary-row grand-total">
                                 <span>Total Amount Due</span>
-                                <span>${total.toLocaleString()}</span>
+                                <span>{preferences?.currency || 'Rs.'} {total.toLocaleString()}</span>
                             </div>
                         </div>
                     </div>

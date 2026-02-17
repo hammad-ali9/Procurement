@@ -9,34 +9,72 @@ export default function Dashboard() {
     const stats = getStats();
     const [timeframe, setTimeframe] = useState('months'); // 'days', 'months', 'years'
 
+    // Build chart data dynamically from real invoices
     const chartData = useMemo(() => {
+        if (invoices.length === 0) return [];
+
         if (timeframe === 'days') {
-            return [
-                { name: 'Mon', volume: 4200, pos: 12 },
-                { name: 'Tue', volume: 3800, pos: 8 },
-                { name: 'Wed', volume: 5100, pos: 15 },
-                { name: 'Thu', volume: 4600, pos: 11 },
-                { name: 'Fri', volume: 6200, pos: 18 },
-                { name: 'Sat', volume: 2100, pos: 4 },
-                { name: 'Sun', volume: 1500, pos: 3 },
-            ];
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const dayMap = {};
+            dayNames.forEach(d => { dayMap[d] = { name: d, volume: 0, pos: 0 }; });
+            invoices.forEach(inv => {
+                const d = new Date(inv.date);
+                if (!isNaN(d)) {
+                    const day = dayNames[d.getDay()];
+                    dayMap[day].volume += inv.total;
+                    dayMap[day].pos += 1;
+                }
+            });
+            return Object.values(dayMap);
         } else if (timeframe === 'years') {
-            return [
-                { name: '2022', volume: 450000, pos: 1200 },
-                { name: '2023', volume: 680000, pos: 1850 },
-                { name: '2024', volume: 820000, pos: 2240 },
-            ];
+            const yearMap = {};
+            invoices.forEach(inv => {
+                const d = new Date(inv.date);
+                if (!isNaN(d)) {
+                    const yr = d.getFullYear().toString();
+                    if (!yearMap[yr]) yearMap[yr] = { name: yr, volume: 0, pos: 0 };
+                    yearMap[yr].volume += inv.total;
+                    yearMap[yr].pos += 1;
+                }
+            });
+            return Object.values(yearMap).sort((a, b) => a.name.localeCompare(b.name));
         }
         // Default: months
-        return [
-            { name: 'Jan', volume: 45000, pos: 145 },
-            { name: 'Feb', volume: 52000, pos: 168 },
-            { name: 'Mar', volume: 48000, pos: 152 },
-            { name: 'Apr', volume: 61000, pos: 198 },
-            { name: 'May', volume: 55000, pos: 174 },
-            { name: 'Jun', volume: 67000, pos: 212 },
-        ];
-    }, [timeframe]);
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const monthMap = {};
+        invoices.forEach(inv => {
+            const d = new Date(inv.date);
+            if (!isNaN(d)) {
+                const m = monthNames[d.getMonth()];
+                if (!monthMap[m]) monthMap[m] = { name: m, volume: 0, pos: 0, idx: d.getMonth() };
+                monthMap[m].volume += inv.total;
+                monthMap[m].pos += 1;
+            }
+        });
+        return Object.values(monthMap).sort((a, b) => a.idx - b.idx);
+    }, [timeframe, invoices]);
+
+    // Group invoices by Document History (Extraction Groups)
+    const groupedHistory = useMemo(() => {
+        const groups = invoices.reduce((acc, inv) => {
+            if (!acc[inv.groupId]) {
+                acc[inv.groupId] = {
+                    groupId: inv.groupId,
+                    customer: inv.customer, // Primary organization/Origin
+                    date: inv.processedAt || inv.date, // Use AI processing time
+                    status: inv.status,
+                    docCount: 0,
+                    totalValue: 0,
+                    type: inv.type
+                }
+            }
+            acc[inv.groupId].docCount += 1
+            acc[inv.groupId].totalValue += inv.total
+            if (inv.status === 'In Review') acc[inv.groupId].status = 'In Review'
+            return acc
+        }, {})
+        return Object.values(groups).sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 4)
+    }, [invoices])
 
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
@@ -44,7 +82,7 @@ export default function Dashboard() {
                 <div className="custom-chart-tooltip">
                     <p className="tooltip-label">{label}</p>
                     <p className="tooltip-value">
-                        {payload[0].name === 'volume' ? `$${payload[0].value.toLocaleString()}` : `${payload[0].value} POs`}
+                        {payload[0].name === 'volume' ? `Rs. ${payload[0].value.toLocaleString()}` : `${payload[0].value} POs`}
                     </p>
                 </div>
             );
@@ -82,7 +120,7 @@ export default function Dashboard() {
                 </div>
                 <div className="stat-card">
                     <div className="stat-label">Total Volume</div>
-                    <div className="stat-value">${stats.totalAmount}</div>
+                    <div className="stat-value">Rs. {stats.totalAmount}</div>
                     <div className="stat-trend positive">
                         <span className="trend-arrow">
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
@@ -212,17 +250,17 @@ export default function Dashboard() {
                         <Link to="/dashboard/history" className="see-all-link">See All</Link>
                     </div>
                     <div className="activity-list">
-                        {invoices.slice(0, 4).map(inv => (
-                            <div key={inv.id} className="activity-item">
+                        {groupedHistory.map(group => (
+                            <div key={group.groupId} className="activity-item">
                                 <div className="activity-icon">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
                                 </div>
                                 <div className="activity-info">
-                                    <div className="activity-name">{inv.customer} <span className="activity-type-label">({inv.type})</span></div>
-                                    <div className="activity-meta">{inv.id} • {inv.date} • ${inv.total.toLocaleString()}</div>
+                                    <div className="activity-name">{group.customer} <span className="activity-type-label">({group.docCount} Documents)</span></div>
+                                    <div className="activity-meta">{group.groupId} • {group.date} • Rs. {group.totalValue.toLocaleString()}</div>
                                 </div>
-                                <Link to={`/dashboard/extract/${inv.groupId}`} className={`activity-status ${inv.status.toLowerCase() === 'processed' ? 'success' : ''}`}>
-                                    {inv.status}
+                                <Link to={`/dashboard/extract/${group.groupId}`} className={`activity-status ${group.status.toLowerCase().replace(' ', '-')}`}>
+                                    {group.status}
                                 </Link>
                             </div>
                         ))}
@@ -264,7 +302,7 @@ export default function Dashboard() {
                                         </div>
                                         <span className="rate-pct">{Math.round((sup.volume / parseFloat(stats.totalAmount.replace(/,/g, '')) * 100))}%</span>
                                     </div>
-                                    <div className="table-col partner-total text-right">${sup.volume.toLocaleString()}</div>
+                                    <div className="table-col partner-total text-right">Rs. {sup.volume.toLocaleString()}</div>
                                 </div>
                             ))}
                         </div>

@@ -12,8 +12,8 @@ export default function InvoiceHistory() {
         if (!acc[inv.groupId]) {
             acc[inv.groupId] = {
                 groupId: inv.groupId,
-                customer: inv.customer,
-                date: inv.date,
+                customer: inv.customer, // Primary organization/Origin
+                date: inv.processedAt || inv.date, // Use AI processing time
                 status: inv.status,
                 docCount: 0,
                 totalValue: 0

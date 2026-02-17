@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { useProcurement } from '../context/ProcurementContext.js'
+import { getPKTFullTimestamp } from '../components/Topbar'
 import './InvoiceUpload.css'
 
 export default function InvoiceUpload() {
@@ -15,7 +16,7 @@ export default function InvoiceUpload() {
     const navigate = useNavigate()
     const { groupId } = useParams()
     const location = useLocation()
-    const { addMultipleInvoices, createCustomInvoice, invoices } = useProcurement()
+    const { addMultipleInvoices, createCustomInvoice, invoices, setOriginalFile, getOriginalFile } = useProcurement()
 
     // Detect if we came from history
     const isFromHistory = location.state?.fromHistory
@@ -42,6 +43,13 @@ export default function InvoiceUpload() {
             if (groupDocs.length > 0) {
                 setExtractedDocs(groupDocs);
                 setShowingResults(true);
+            }
+            // Restore original file preview from context
+            const savedFile = getOriginalFile(groupId);
+            if (savedFile && !fileUrl) {
+                setFileUrl(savedFile.dataUrl);
+                // Create a minimal file-like object for type checking
+                setFile({ type: savedFile.fileType });
             }
         }
     }, [groupId, invoices]);
@@ -88,7 +96,8 @@ export default function InvoiceUpload() {
                 ...doc,
                 id: doc.id || `GEN-${timestamp}-${index}`, // Fallback ID if AI misses it
                 groupId: newGroupId, // Bind all to this PO
-                status: 'In Review'
+                status: 'In Review',
+                processedAt: getPKTFullTimestamp()
             }))
 
             clearInterval(interval)
@@ -99,7 +108,13 @@ export default function InvoiceUpload() {
                 setIsUploading(false)
                 setShowingResults(true)
                 setStagedDocs(enrichedDocuments)
-                navigate(`/dashboard/extract/${newGroupId}`)
+
+                // Save the original file as base64 for later preview
+                const reader = new FileReader()
+                reader.onloadend = () => {
+                    setOriginalFile(newGroupId, reader.result, file.type)
+                }
+                reader.readAsDataURL(file)
             }, 500)
 
         } catch (error) {
@@ -140,6 +155,15 @@ export default function InvoiceUpload() {
 
     const handleShare = (doc) => {
         alert(`Sharing document ${doc.id} via secure link...`)
+    }
+
+    const handleEditDoc = (docId) => {
+        // Auto-commit staged docs to global state before opening editor
+        if (stagedDocs && stagedDocs.length > 0) {
+            addMultipleInvoices(stagedDocs)
+            setStagedDocs([])
+        }
+        navigate(`/dashboard/edit/${docId}`)
     }
 
     if (showingResults) {
@@ -189,11 +213,18 @@ export default function InvoiceUpload() {
                             {file?.type.includes('image') ? (
                                 <img src={fileUrl} alt="PO Preview" className="po-preview-img" />
                             ) : (
-                                <div className="pdf-placeholder">
-                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
-                                    <p>{file?.name}</p>
-                                    <span className="pdf-badge">PDF Preview Active</span>
-                                </div>
+                                <object
+                                    data={fileUrl}
+                                    type="application/pdf"
+                                    className="po-preview-pdf"
+                                    width="100%"
+                                    height="100%"
+                                >
+                                    <div className="pdf-placeholder">
+                                        <p>PDF Preview Not Available</p>
+                                        <a href={fileUrl} target="_blank" rel="noreferrer" className="btn-download">Download File</a>
+                                    </div>
+                                </object>
                             )}
                         </div>
                     </div>
@@ -219,7 +250,7 @@ export default function InvoiceUpload() {
                                     <div className="card-body">
                                         <div className="card-stat">
                                             <label>Total Value</label>
-                                            <div className="card-amount">${doc.total.toLocaleString()}</div>
+                                            <div className="card-amount">Rs. {doc.total.toLocaleString()}</div>
                                         </div>
                                         <div className="card-stat">
                                             <label>Status</label>
@@ -228,7 +259,7 @@ export default function InvoiceUpload() {
                                     </div>
                                     <button
                                         className="btn-card-edit"
-                                        onClick={() => navigate(`/dashboard/edit/${doc.id}`)}
+                                        onClick={() => handleEditDoc(doc.id)}
                                     >
                                         Review & Complete Details
                                     </button>

@@ -482,21 +482,22 @@
 
 .inv-brand {
     display: flex;
+    flex-direction: row;
     align-items: center;
     gap: 1.25rem;
 }
 
 .inv-logo {
-    width: 54px;
-    height: 54px;
+    width: 4.5rem;
+    height: 4.5rem;
     background: #000;
     color: #fff;
-    border-radius: 14px;
+    border-radius: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.75rem;
-    font-weight: 800;
+    font-size: 2.25rem;
+    font-weight: 700;
     overflow: hidden;
 }
 
@@ -508,8 +509,8 @@
 }
 
 .inv-brand h2 {
-    font-size: 1.5rem;
-    font-weight: 800;
+    font-size: 1.75rem;
+    font-weight: 700;
 }
 
 .inv-brand p {
