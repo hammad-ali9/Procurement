@@ -181,7 +181,7 @@ export default function Products() {
                                     </select>
                                 </div>
                                 <div className="form-group">
-                                    <label>Price ($)</label>
+                                    <label>Price (Rs.)</label>
                                     <input
                                         type="number"
                                         required
@@ -241,7 +241,7 @@ export default function Products() {
                 <div className="inventory-stats-row">
                     <div className="stat-card asset-value">
                         <span className="stat-label">Total Asset Value</span>
-                        <h2 className="stat-value">${stats.totalValue.toLocaleString()}</h2>
+                        <h2 className="stat-value">Rs. {stats.totalValue.toLocaleString()}</h2>
                     </div>
                     <div className="stat-card health-summary">
                         <div className="health-header">
@@ -283,9 +283,9 @@ export default function Products() {
                             onChange={(e) => setPriceFilter(e.target.value)}
                         >
                             <option value="All">Amount Status</option>
-                            <option value="Low">Under $1,000</option>
-                            <option value="Mid">$1,000 - $5,000</option>
-                            <option value="High">Above $5,000</option>
+                            <option value="Low">Under Rs. 1,000</option>
+                            <option value="Mid">Rs. 1,000 - Rs. 5,000</option>
+                            <option value="High">Above Rs. 5,000</option>
                         </select>
                         <select
                             className="control-select"
@@ -342,7 +342,7 @@ export default function Products() {
                                                 {getProductStatus(p.stock)}
                                             </span>
                                         </td>
-                                        <td><strong>${p.price.toLocaleString()}</strong></td>
+                                        <td><strong>Rs. {p.price.toLocaleString()}</strong></td>
                                         <td>
                                             <button
                                                 className="btn-icon-more"

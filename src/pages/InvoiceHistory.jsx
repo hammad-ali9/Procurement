@@ -75,7 +75,7 @@ export default function InvoiceHistory() {
                                     <span className="type-badge">{po.docCount} Documents</span>
                                 </td>
                                 <td>{po.date}</td>
-                                <td className="font-bold">${po.totalValue.toLocaleString()}</td>
+                                <td className="font-bold">Rs. {po.totalValue.toLocaleString()}</td>
                                 <td>
                                     <span className={`status-badge ${po.status.toLowerCase().replace(' ', '-')}`}>
                                         {po.status}

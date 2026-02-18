@@ -226,7 +226,7 @@ export default function QuotationEditor() {
                             </div>
 
                             <div className="total-due-box">
-                                <span className="total-val">${total.toLocaleString()}</span>
+                                <span className="total-val">Rs. {total.toLocaleString()}</span>
                                 <span className="total-label">TOTAL DUE</span>
                             </div>
 
@@ -262,7 +262,7 @@ export default function QuotationEditor() {
                                             <div className="item-desc-text">{item.description}</div>
                                         </td>
                                         <td className="col-time">{item.time.toUpperCase()}</td>
-                                        <td className="col-amount text-right">${(item.quantity * item.rate).toLocaleString()}</td>
+                                        <td className="col-amount text-right">Rs. {(item.quantity * item.rate).toLocaleString()}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -273,7 +273,7 @@ export default function QuotationEditor() {
                                 <p className="total-incl-tax">TOTAL - INCL TAX {quotation.taxRate}%</p>
                             </div>
                             <div className="summary-right">
-                                <p className="summary-total-val">${total.toLocaleString()}</p>
+                                <p className="summary-total-val">Rs. {total.toLocaleString()}</p>
                             </div>
                         </div>
 

@@ -162,7 +162,7 @@ export default function QuotationCreator() {
                                     {isAvailable ? getProductStatus(item.stock) : 'Missing'}
                                 </span>
                             </td>
-                            <td><strong>{isAvailable ? `$${item.price.toLocaleString()}` : '-'}</strong></td>
+                            <td><strong>{isAvailable ? `Rs. ${item.price.toLocaleString()}` : '-'}</strong></td>
                             <td>
                                 {isAvailable ? (
                                     <button
