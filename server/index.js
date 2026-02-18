@@ -17,6 +17,7 @@ import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
 import { extractFromDocument } from './services/extractService.js';
+import { parseQuotationRequest } from './services/quotationService.js';
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -63,8 +64,34 @@ app.post('/api/extract', upload.single('document'), async (req, res) => {
     }
 });
 
+app.post('/api/parse-quotation', async (req, res) => {
+    try {
+        const { query, inventory } = req.body;
+
+        if (!query || !inventory) {
+            return res.status(400).json({ error: 'Missing query or inventory context' });
+        }
+
+        console.log(`\n💬 Received Quotation Request: "${query}"`);
+        console.log(`   Inventory Context: ${inventory.length} items`);
+
+        const result = await parseQuotationRequest(query, inventory);
+
+        console.log(`✨ AI identified ${result.available?.length || 0} matches and ${result.missing?.length || 0} missing items.\n`);
+        res.json(result);
+
+    } catch (error) {
+        console.error('❌ Quotation Parsing Error:', error.message);
+        res.status(500).json({
+            error: 'AI Parsing failed',
+            details: error.message
+        });
+    }
+});
+
 app.listen(port, () => {
     console.log(`\n🚀 AI Extraction Server running at http://localhost:${port}`);
     console.log(`   POST /api/extract — Upload a PO document`);
+    console.log(`   POST /api/parse-quotation — AI Search for Products`);
     console.log(`   GET  /api/health  — Check server status\n`);
 });

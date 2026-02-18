@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useProcurement } from '../context/ProcurementContext.js'
+import html2pdf from 'html2pdf.js'
 import './InvoiceEditor.css'
 
 export default function InvoiceEditor() {
@@ -10,6 +11,11 @@ export default function InvoiceEditor() {
 
     const [invoice, setInvoice] = useState(null)
     const [activeTab, setActiveTab] = useState('items') // 'details', 'items', 'payment'
+    const previewRef = useRef(null)
+
+    const scrollToPreview = () => {
+        previewRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
 
     useEffect(() => {
         const data = getInvoiceById(id)
@@ -27,7 +33,7 @@ export default function InvoiceEditor() {
 
     if (!invoice) return <div className="p-10">Loading invoice data...</div>
 
-    const subtotal = invoice.items.reduce((acc, item) => acc + (item.qty * item.rate), 0)
+    const subtotal = invoice.items.reduce((acc, item) => acc + ((item.quantity || item.qty || 0) * (item.rate || 0)), 0)
     const taxAmount = (subtotal * invoice.taxRate) / 100
     const total = subtotal + taxAmount + invoice.delivery
 
@@ -53,7 +59,7 @@ export default function InvoiceEditor() {
         const newId = invoice.items.length > 0 ? Math.max(...invoice.items.map(i => i.id)) + 1 : 1
         setInvoice(prev => ({
             ...prev,
-            items: [...prev.items, { id: newId, desc: 'New Item', qty: 1, rate: 0 }]
+            items: [...prev.items, { id: newId, name: 'New Item', quantity: 1, rate: 0 }]
         }))
     }
 
@@ -66,11 +72,24 @@ export default function InvoiceEditor() {
 
     const handleFinalize = () => {
         updateInvoice({ ...invoice, total })
-        navigate('/dashboard/history')
+        // Return to the previous page (Extraction Results or History)
+        navigate(-1)
     }
 
     const handleDownload = () => {
-        alert('Standard PDF generation initiated. Your document will be ready in a few moments.')
+        const element = previewRef.current;
+        if (!element) return;
+
+        const opt = {
+            margin: [0.5, 0.5],
+            filename: `Invoice_${invoice.id}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        // New html2pdf call
+        html2pdf().set(opt).from(element).save();
     }
 
     return (
@@ -197,20 +216,20 @@ export default function InvoiceEditor() {
                                             className="i-desc"
                                             placeholder="Item description..."
                                             type="text"
-                                            value={item.desc}
-                                            onChange={(e) => updateItem(item.id, 'desc', e.target.value)}
+                                            value={item.name || item.desc || ""}
+                                            onChange={(e) => updateItem(item.id, 'name', e.target.value)}
                                         />
                                         <input
                                             className="i-qty"
                                             type="number"
-                                            value={item.qty}
-                                            onChange={(e) => updateItem(item.id, 'qty', parseInt(e.target.value) || 0)}
+                                            value={item.quantity || item.qty || 0}
+                                            onChange={(e) => updateItem(item.id, 'quantity', parseInt(e.target.value) || 0)}
                                         />
                                         <input
                                             className="i-rate"
                                             type="number"
-                                            value={item.rate}
-                                            onChange={(e) => updateItem(item.id, 'rate', parseInt(e.target.value) || 0)}
+                                            value={item.rate || 0}
+                                            onChange={(e) => updateItem(item.id, 'rate', parseFloat(e.target.value) || 0)}
                                         />
                                         <button className="btn-remove-item" onClick={() => removeItem(item.id)}>
                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12" /></svg>
@@ -285,12 +304,24 @@ export default function InvoiceEditor() {
                     <button className="btn-download" onClick={handleDownload}>
                         Download PDF
                     </button>
-                    <button className="btn-cancel" onClick={() => navigate(-1)}>Discard Changes</button>
+                </div>
+
+                {/* View Live Invoice indicator - Now outside constrained container if needed, but works here due to fixed pos */}
+                <div className="view-live-indicator" onClick={scrollToPreview}>
+                    <div className="live-status-badge">
+                        <span className="live-dot"></span>
+                        <span>Live Preview</span>
+                    </div>
+                    <div className="indicator-arrow">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M7 13l5 5 5-5M7 6l5 5 5-5" />
+                        </svg>
+                    </div>
                 </div>
             </div>
 
             {/* Right Panel - Premium Document Preview */}
-            <div className="editor-preview-panel">
+            <div className="editor-preview-panel" ref={previewRef}>
                 <div className="invoice-container-sheet">
                     {/* Invoice Header */}
                     <div className="inv-header">
@@ -299,9 +330,7 @@ export default function InvoiceEditor() {
                                 {companyLogo ? (
                                     <img src={companyLogo} alt="Logo" className="logo-preview-img" />
                                 ) : (
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                                    </svg>
+                                    <img src="/logo/logo.png" alt="Karobar Logo" className="logo-preview-img" style={{ opacity: 0.5 }} />
                                 )}
                             </div>
                             <div>
@@ -344,16 +373,20 @@ export default function InvoiceEditor() {
                             </tr>
                         </thead>
                         <tbody>
-                            {invoice.items.length > 0 ? invoice.items.map(item => (
-                                <tr key={item.id}>
-                                    <td className="w-50">{item.desc}</td>
-                                    <td>{item.qty}</td>
-                                    <td>{preferences?.currency || 'Rs.'} {item.rate.toLocaleString()}</td>
-                                    <td className="text-right text-bold">
-                                        {preferences?.currency || 'Rs.'} {(item.qty * item.rate).toLocaleString()}
-                                    </td>
-                                </tr>
-                            )) : (
+                            {invoice.items.length > 0 ? invoice.items.map(item => {
+                                const qty = item.quantity || item.qty || 0;
+                                const rate = item.rate || 0;
+                                return (
+                                    <tr key={item.id}>
+                                        <td className="w-50">{item.name || item.desc}</td>
+                                        <td>{qty}</td>
+                                        <td>{preferences?.currency || 'Rs.'} {rate.toLocaleString()}</td>
+                                        <td className="text-right text-bold">
+                                            {preferences?.currency || 'Rs.'} {(qty * rate).toLocaleString()}
+                                        </td>
+                                    </tr>
+                                );
+                            }) : (
                                 <tr>
                                     <td colSpan="4" className="empty-row">No items added yet.</td>
                                 </tr>

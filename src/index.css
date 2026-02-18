@@ -7,6 +7,7 @@
   --bg-page: #f0f2f5;
   /* More defined grey background */
   --bg-card: #ffffff;
+  --theme-black: #000000;
   --text-main: #000000;
   --text-grey: #4a4a4a;
   /* Darkened for better contrast */
@@ -29,8 +30,8 @@
   --border-subtle: 1px solid #e2e8f0;
 
   /* Spacing */
-  --space-gutter: 32px;
-  --space-card: 24px;
+  --space-gutter: 28px;
+  --space-card: 20px;
 
   /* Surface & Background Mapping */
   --bg-primary: var(--bg-page);
@@ -89,7 +90,7 @@
 }
 
 html {
-  font-size: 12px;
+  font-size: 10px;
   scroll-behavior: smooth;
 }
 
@@ -259,5 +260,90 @@ textarea {
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+/* --- Buttons --- */
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: #000;
+  color: #fff;
+  border: 1px solid #000;
+}
+
+.btn-primary:hover {
+  background: #222;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary {
+  background: #fff;
+  color: #000;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-secondary:hover {
+  background: #fafafa;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.25rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  background: #fff;
+  color: #dc2626;
+  border: 1px solid #fee2e2;
+}
+
+.btn-danger:hover {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
+}
+
+.btn-primary svg,
+.btn-secondary svg {
+  flex-shrink: 0;
+}
+
+/* --- Page Transitions --- */
+.page-transition {
+  animation: pageFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  will-change: opacity, transform;
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

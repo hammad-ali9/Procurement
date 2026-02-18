@@ -5,9 +5,21 @@ import { useProcurement } from '../context/ProcurementContext.js'
 import './Dashboard.css'
 
 export default function Dashboard() {
-    const { invoices, getStats } = useProcurement();
+    const { invoices, getStats, products, quotations } = useProcurement();
     const stats = getStats();
-    const [timeframe, setTimeframe] = useState('months'); // 'days', 'months', 'years'
+
+    // Calculate Inventory & Quotation Stats
+    const analyticsStats = useMemo(() => {
+        const totalProducts = products.length;
+        const inventoryValue = products.reduce((acc, p) => acc + ((p.stock || 0) * (p.price || 0)), 0);
+        const approvedQuotations = quotations.filter(q => q.status === 'Approved');
+        const approvedCount = approvedQuotations.length;
+        const approvedValue = approvedQuotations.reduce((acc, q) => acc + (q.total || 0), 0);
+
+        return { totalProducts, inventoryValue, approvedCount, approvedValue };
+    }, [products, quotations]);
+
+    const [timeframe, setTimeframe] = useState('days'); // 'days', 'months', 'years'
 
     // Build chart data dynamically from real invoices
     const chartData = useMemo(() => {
@@ -18,7 +30,7 @@ export default function Dashboard() {
             const dayMap = {};
             dayNames.forEach(d => { dayMap[d] = { name: d, volume: 0, pos: 0 }; });
             invoices.forEach(inv => {
-                const d = new Date(inv.date);
+                const d = new Date(inv.processedAt || inv.date);
                 if (!isNaN(d)) {
                     const day = dayNames[d.getDay()];
                     dayMap[day].volume += inv.total;
@@ -29,7 +41,7 @@ export default function Dashboard() {
         } else if (timeframe === 'years') {
             const yearMap = {};
             invoices.forEach(inv => {
-                const d = new Date(inv.date);
+                const d = new Date(inv.processedAt || inv.date);
                 if (!isNaN(d)) {
                     const yr = d.getFullYear().toString();
                     if (!yearMap[yr]) yearMap[yr] = { name: yr, volume: 0, pos: 0 };
@@ -43,7 +55,7 @@ export default function Dashboard() {
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const monthMap = {};
         invoices.forEach(inv => {
-            const d = new Date(inv.date);
+            const d = new Date(inv.processedAt || inv.date);
             if (!isNaN(d)) {
                 const m = monthNames[d.getMonth()];
                 if (!monthMap[m]) monthMap[m] = { name: m, volume: 0, pos: 0, idx: d.getMonth() };
@@ -105,7 +117,41 @@ export default function Dashboard() {
                 </Link>
             </div>
 
-            {/* Metric Grid */}
+            {/* Inventory & Quotation Metrics */}
+            <h3 className="section-title" style={{ marginBottom: '1rem' }}>Inventory & Quotations</h3>
+            <div className="analytics-grid">
+                <div className="stat-card">
+                    <div className="stat-label">Total Products</div>
+                    <div className="stat-value">{analyticsStats.totalProducts}</div>
+                    <div className="stat-trend positive">
+                        <span className="trend-desc">In Inventory</span>
+                    </div>
+                </div>
+                <div className="stat-card">
+                    <div className="stat-label">Inventory Value</div>
+                    <div className="stat-value">Rs. {analyticsStats.inventoryValue.toLocaleString()}</div>
+                    <div className="stat-trend positive">
+                        <span className="trend-desc">Total Asset Value</span>
+                    </div>
+                </div>
+                <div className="stat-card">
+                    <div className="stat-label">Approved Quotations</div>
+                    <div className="stat-value">{analyticsStats.approvedCount}</div>
+                    <div className="stat-trend positive">
+                        <span className="trend-badge">Approved</span>
+                    </div>
+                </div>
+                <div className="stat-card">
+                    <div className="stat-label">Approved Value</div>
+                    <div className="stat-value">Rs. {analyticsStats.approvedValue.toLocaleString()}</div>
+                    <div className="stat-trend positive">
+                        <span className="trend-desc">Commitments</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* PO & Invoice Metrics */}
+            <h3 className="section-title" style={{ marginBottom: '1rem' }}>Order Processing</h3>
             <div className="analytics-grid">
                 <div className="stat-card">
                     <div className="stat-label">POs Uploaded</div>

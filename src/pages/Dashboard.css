@@ -47,7 +47,7 @@
 /* Metric Grid */
 .analytics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2.5rem;
 }
@@ -242,8 +242,8 @@
 }
 
 .activity-icon {
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 34px;
     background: #f8f9fa;
     border: 1px solid #eee;
     border-radius: 10px;
@@ -343,8 +343,8 @@
 }
 
 .partner-avatar-mini {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     background: #fff;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
@@ -376,7 +376,7 @@
 }
 
 .partner-volume-bar {
-    width: 60px;
+    width: 50px;
     height: 6px;
     background: #f1f5f9;
     border-radius: 10px;
