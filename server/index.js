@@ -10,7 +10,7 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
 console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-console.log("🔑 Groq API Key:", process.env.GROQ_API_KEY ? `${process.env.GROQ_API_KEY.substring(0, 10)}...` : "❌ NOT FOUND");
+console.log("🔑 Groq API Key Status:", process.env.GROQ_API_KEY ? "✅ LOADED" : "❌ NOT FOUND");
 console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
 import express from 'express';
@@ -36,7 +36,8 @@ const upload = multer({
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'ok',
-        apiKeyLoaded: !!process.env.GOOGLE_GEMINI_API_KEY
+        groqKeysLoaded: !!(process.env.GROQ_API_KEY || process.env.GROQ_API_KEYS),
+        environment: process.env.VERCEL ? 'production' : 'development'
     });
 });
 
@@ -48,7 +49,6 @@ app.post('/api/extract', upload.single('document'), async (req, res) => {
         }
 
         console.log(`\n📄 Received file: ${req.file.originalname}`);
-        console.log(`   Type: ${req.file.mimetype}`);
         console.log(`   Size: ${(req.file.size / 1024).toFixed(1)} KB`);
 
         const result = await extractFromDocument(req.file.buffer, req.file.mimetype);
@@ -72,12 +72,7 @@ app.post('/api/parse-quotation', async (req, res) => {
             return res.status(400).json({ error: 'Missing query or inventory context' });
         }
 
-        console.log(`\n💬 Received Quotation Request: "${query}"`);
-        console.log(`   Inventory Context: ${inventory.length} items`);
-
         const result = await parseQuotationRequest(query, inventory);
-
-        console.log(`✨ AI identified ${result.available?.length || 0} matches and ${result.missing?.length || 0} missing items.\n`);
         res.json(result);
 
     } catch (error) {
@@ -89,9 +84,12 @@ app.post('/api/parse-quotation', async (req, res) => {
     }
 });
 
-app.listen(port, () => {
-    console.log(`\n🚀 AI Extraction Server running at http://localhost:${port}`);
-    console.log(`   POST /api/extract — Upload a PO document`);
-    console.log(`   POST /api/parse-quotation — AI Search for Products`);
-    console.log(`   GET  /api/health  — Check server status\n`);
-});
+// Export the app for Vercel
+export default app;
+
+// Only listen when running locally
+if (!process.env.VERCEL) {
+    app.listen(port, () => {
+        console.log(`\n🚀 AI Extraction Server running at http://localhost:${port}`);
+    });
+}

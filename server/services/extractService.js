@@ -81,7 +81,9 @@ export async function extractFromDocument(fileBuffer, mimeType) {
             throw new Error(`Unsupported file type: ${mimeType}. Upload an image (JPG/PNG) or PDF.`);
         }
     } catch (error) {
-        console.warn(`⚠️ API/Processing Error: ${error.message}. Simulation fallback engaged.`);
+        console.error(`❌ CRITICAL: Extraction failed. Fallback triggered.`);
+        console.error(`   Reason: ${error.message}`);
+        console.error(`   Stack: ${error.stack}`);
         // If API fails completely, fallback to simulation
         return simulateExtraction();
     }
