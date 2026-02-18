@@ -198,7 +198,7 @@ export default function InvoiceUpload() {
 
         try {
             // Real API call to our local Node.js + Gemini service
-            const response = await fetch('http://localhost:5000/api/extract', {
+            const response = await fetch('/api/extract', {
                 method: 'POST',
                 body: formData,
             })

@@ -64,7 +64,7 @@ export default function QuotationCreator() {
                 sku: p.sku
             }));
 
-            const response = await fetch('http://localhost:5000/api/parse-quotation', {
+            const response = await fetch('/api/parse-quotation', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
