@@ -3,13 +3,13 @@ import { getPKTInvoiceDate } from '../components/Topbar';
 import { ProcurementContext } from './ProcurementContext.js';
 
 const initialProducts = [
-    { id: 1, name: 'PixelMate', category: 'Electronics', sku: 'AFZM647', incoming: 478, stock: 595, status: 'In stock', price: 4347, image: '🛒', createdAt: '2024-09-15' },
+    { id: 1, name: 'PixelMate', category: 'Electronics', sku: 'AFZM647', incoming: 478, stock: 5, status: 'Low stock', price: 4347, image: '🛒', createdAt: '2024-09-15' },
     { id: 2, name: 'FusionLink', category: 'Electronics', sku: 'AFZM622', incoming: 418, stock: 761, status: 'In stock', price: 5347, image: '📺', createdAt: '2024-09-20' },
-    { id: 3, name: 'VelvetAura', category: 'Apparel', sku: 'AFZM655', incoming: 471, stock: 765, status: 'Out of stock', price: 2347, image: '👗', createdAt: '2024-10-01' },
+    { id: 3, name: 'VelvetAura', category: 'Apparel', sku: 'AFZM655', incoming: 471, stock: 5, status: 'Low stock', price: 2347, image: '👗', createdAt: '2024-10-01' },
     { id: 4, name: 'UrbanFlex Sneakers', category: 'Apparel', sku: 'AFZM653', incoming: 178, stock: 65, status: 'Low stock', price: 9347, image: '👟', createdAt: '2024-10-05' },
-    { id: 5, name: 'SilkSage Wrap', category: 'Wellness', sku: 'AFZM699', incoming: 473, stock: 165, status: 'In stock', price: 4347, image: '🧴', createdAt: '2024-10-10' },
+    { id: 5, name: 'SilkSage Wrap', category: 'Wellness', sku: 'AFZM699', incoming: 473, stock: 0, status: 'Out of stock', price: 4347, image: '🧴', createdAt: '2024-10-10' },
     { id: 6, name: 'CasaLuxe', category: 'Home & Living', sku: 'AFZM633', incoming: 168, stock: 575, status: 'Low stock', price: 3347, image: '🛋️', createdAt: '2024-10-15' },
-    { id: 7, name: 'Nexus Watch', category: 'Electronics', sku: 'AFZM701', incoming: 120, stock: 450, status: 'In stock', price: 1247, image: '⌚', createdAt: '2024-10-20' },
+    { id: 7, name: 'Nexus Watch', category: 'Electronics', sku: 'AFZM701', incoming: 120, stock: 0, status: 'Out of stock', price: 1247, image: '⌚', createdAt: '2024-10-20' },
     { id: 8, name: 'Aero Headphones', category: 'Electronics', sku: 'AFZM702', incoming: 85, stock: 320, status: 'In stock', price: 847, image: '🎧', createdAt: '2024-10-25' },
 ];
 
