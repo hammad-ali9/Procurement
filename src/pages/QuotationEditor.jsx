@@ -98,14 +98,15 @@ export default function QuotationEditor() {
     }
 
     const handleDownload = () => {
-        const element = previewRef.current;
+        const element = document.querySelector('.preview-sheet');
         if (!element) return;
         const opt = {
             margin: 0,
-            filename: `Quotation_${quotation.id}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            filename: `Quotation - ${quotation.clientName}.pdf`,
+            image: { type: 'png' },
+            html2canvas: { scale: 3, useCORS: true, logging: false },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['css', 'legacy'] }
         };
         html2pdf().set(opt).from(element).save();
     }

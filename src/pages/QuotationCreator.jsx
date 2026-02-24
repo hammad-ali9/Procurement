@@ -61,7 +61,7 @@ export default function QuotationCreator() {
                 id: p.id,
                 name: p.name,
                 category: p.category,
-                sku: p.sku
+                category: p.category
             }));
 
             const response = await fetch('/api/parse-quotation', {
@@ -78,14 +78,25 @@ export default function QuotationCreator() {
             const data = await response.json();
 
             // Hydrate the 'available' items with full product details
+            // STRICT MATCHING: Only allow exact name matches (case-insensitive)
             const hydratedAvailable = data.available.map(item => {
                 const product = products.find(p => p.id === item.id);
-                return product ? { ...product, requestedQty: item.quantity } : null;
+                // Check if name effectively matches to prevent category-only matching
+                if (product && product.name.toLowerCase() === (item.name || '').toLowerCase()) {
+                    return { ...product, requestedQty: item.quantity };
+                }
+                return null;
             }).filter(Boolean);
+
+            // Move items that were filtered out of 'available' back into 'missing'
+            const recoveredMissing = data.available.filter(item => {
+                const isHydrated = hydratedAvailable.some(h => h.id === item.id);
+                return !isHydrated;
+            });
 
             setResults({
                 available: hydratedAvailable,
-                missing: data.missing || []
+                missing: [...(data.missing || []), ...recoveredMissing]
             });
 
         } catch (error) {
@@ -97,20 +108,20 @@ export default function QuotationCreator() {
     };
 
     const handleAddToInventory = (item) => {
-        const newSku = `NEW-${Date.now().toString().slice(-4)}`;
         const newProduct = {
             name: item.name,
             category: 'Electronics', // Default category
-            sku: newSku,
+            category: 'Electronics', // Default category
             price: 0,
-            stock: 0,
-            incoming: item.quantity,
+            stock: item.quantity, // Sync requested quantity to initial stock
+            incoming: 0,
             status: 'In stock',
-            image: '📦'
+            image: '📦',
+            isNew: true // Mark for the "New" badge
         };
 
-        // Add to global inventory (this will also trigger a success notification)
-        addProduct(newProduct);
+        // Add to global inventory with the isNew option
+        addProduct(newProduct, { isNew: true });
 
         // Move from Missing to Available in the local UI results
         setResults({
@@ -136,7 +147,6 @@ export default function QuotationCreator() {
                     <tr>
                         <th>Product Name</th>
                         <th>Category</th>
-                        <th>SKU</th>
                         <th>Qty</th>
                         <th>Status</th>
                         <th>Price</th>
@@ -153,7 +163,6 @@ export default function QuotationCreator() {
                                 </div>
                             </td>
                             <td>{isAvailable ? item.category : 'New Item'}</td>
-                            <td><span className="qc-sku-tag">{isAvailable ? item.sku : 'PENDING'}</span></td>
                             <td>
                                 <span className="req-qty-cell">{isAvailable ? item.requestedQty : item.quantity}</span>
                             </td>

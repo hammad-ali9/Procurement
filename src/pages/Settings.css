@@ -11,13 +11,13 @@
 .settings-header h1 {
     font-size: 1.75rem;
     font-weight: 800;
-    color: #111;
+    color: var(--text-main);
     margin: 0 0 0.5rem;
     letter-spacing: -0.02em;
 }
 
 .settings-header p {
-    color: #666;
+    color: var(--text-muted);
     font-size: 0.95rem;
 }
 
@@ -48,7 +48,7 @@
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: 600;
-    color: #555;
+    color: var(--text-grey);
     border-radius: 10px;
     transition: all 0.2s;
     text-align: left;
@@ -56,13 +56,13 @@
 }
 
 .settings-nav-item:hover {
-    background: #f5f5f5;
-    color: #111;
+    background: var(--bg-input);
+    color: var(--text-main);
 }
 
 .settings-nav-item.active {
-    background: #eef2ff;
-    color: #4f46e5;
+    background: #eff6ff;
+    color: #1e1b4b;
 }
 
 .settings-nav-item svg {
@@ -84,7 +84,7 @@
 }
 
 .settings-nav-item.text-red:hover {
-    background: #fef2f2;
+    background: rgba(239, 68, 68, 0.15);
     color: #dc2626;
 }
 
@@ -97,12 +97,12 @@
 .settings-panel h2 {
     font-size: 1.4rem;
     font-weight: 700;
-    color: #111;
+    color: var(--text-main);
     margin: 0 0 0.5rem;
 }
 
 .settings-subtitle {
-    color: #666;
+    color: var(--text-muted);
     margin-bottom: 2rem;
     font-size: 0.95rem;
 }
@@ -123,7 +123,7 @@
 .form-group label {
     font-size: 0.85rem;
     font-weight: 600;
-    color: #333;
+    color: var(--text-grey);
 }
 
 .settings-form input,
@@ -135,7 +135,7 @@
     font-size: 0.95rem;
     transition: all 0.2s;
     font-family: inherit;
-    background: #fff;
+    background: var(--bg-elevated);
     width: 100%;
     box-sizing: border-box;
 }
@@ -144,7 +144,7 @@
 .settings-form textarea:focus,
 .settings-form select:focus {
     outline: none;
-    border-color: #000;
+    border-color: var(--text-main);
     box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
 }
 
@@ -154,7 +154,7 @@
 
 .field-desc {
     font-size: 0.75rem;
-    color: #999;
+    color: var(--text-muted);
     margin-top: 0.25rem;
 }
 
@@ -185,7 +185,7 @@
 }
 
 .btn-primary:hover {
-    background: #000;
+    background: var(--accent-red);
 }
 
 .btn-primary:disabled {
@@ -194,8 +194,8 @@
 }
 
 .btn-secondary {
-    background: #fff;
-    color: #111;
+    background: var(--bg-elevated);
+    color: var(--text-main);
     border: 1px solid #e5e7eb;
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
@@ -206,6 +206,75 @@
 
 .btn-secondary:hover {
     background: #f9fafb;
+}
+
+/* ── Stamp Uploader ── */
+.stamp-uploader {
+    margin-top: 0.5rem;
+}
+
+.stamp-dropzone {
+    border: 2px dashed #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.2s;
+    background: #fdfdfd;
+}
+
+.stamp-dropzone:hover {
+    border-color: #0f172a;
+    background: #f9fafb;
+}
+
+.stamp-dropzone label {
+    cursor: pointer;
+    color: #0f172a;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.stamp-preview {
+    position: relative;
+    width: 120px;
+    height: 80px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0.5rem;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.stamp-preview img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.btn-remove-stamp {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 20px;
+    height: 20px;
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-remove-stamp:hover {
+    background: #dc2626;
 }
 
 /* ── Logo Upload ── */
@@ -240,7 +309,7 @@
 
 .current-logo span {
     font-size: 0.7rem;
-    color: #999;
+    color: var(--text-muted);
     text-align: center;
 }
 
@@ -250,7 +319,7 @@
 }
 
 .btn-outline {
-    background: #fff;
+    background: var(--bg-elevated);
     border: 1px solid #d1d5db;
     color: #374151;
     padding: 0.5rem 1rem;
@@ -285,7 +354,7 @@
 .preferences-section h3 {
     font-size: 1rem;
     font-weight: 700;
-    color: #111;
+    color: var(--text-main);
     margin: 0 0 1rem;
 }
 
@@ -301,7 +370,7 @@
 
 .pref-note {
     font-size: 0.75rem;
-    color: #999;
+    color: var(--text-muted);
     margin-top: 0.25rem;
     display: block;
 }
@@ -312,7 +381,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem 0;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .toggle-item:last-child {
@@ -328,12 +397,12 @@
 .toggle-label {
     font-weight: 600;
     font-size: 0.95rem;
-    color: #333;
+    color: var(--text-grey);
 }
 
 .toggle-desc {
     font-size: 0.8rem;
-    color: #666;
+    color: var(--text-muted);
 }
 
 /* Switch */
@@ -407,7 +476,7 @@ input:checked+.slider:before {
 
 .btn-outline-sm {
     margin-left: auto;
-    background: #fff;
+    background: var(--bg-elevated);
     border: 1px solid #0ea5e9;
     color: #0ea5e9;
     padding: 0.4rem 0.8rem;

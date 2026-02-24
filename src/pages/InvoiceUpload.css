@@ -5,7 +5,7 @@
     align-items: center;
     min-height: 100vh;
     animation: fadeIn 0.5s ease-out;
-    background: #fafafa;
+    background: var(--bg-card);
 }
 
 .scroll-refined {
@@ -29,7 +29,7 @@
 .upload-section-wrapper.compact {
     max-width: 1200px;
     margin-bottom: 3rem;
-    border-bottom: 2px dashed #eee;
+    border-bottom: 2px dashed #000000;
     padding-bottom: 2rem;
 }
 
@@ -79,7 +79,7 @@
 }
 
 .upload-box-main {
-    background: #fff;
+    background: #d3e1ef;
     border-radius: 24px;
     padding: 3rem;
     box-shadow: var(--shadow-soft);
@@ -95,7 +95,7 @@
 }
 
 .btn-new-upload {
-    background: #000;
+    background: var(--accent-red);
     color: #fff;
     border: none;
     padding: 0.75rem 1.5rem;
@@ -112,7 +112,7 @@
 }
 
 .btn-new-upload:hover {
-    background: #222;
+    background: var(--accent-red-hover);
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
@@ -124,7 +124,7 @@
 }
 
 .dropzone {
-    border: 2px dashed #eee;
+    border: 2px dashed #000000;
     border-radius: 20px;
     padding: 3rem 2rem;
     transition: all 0.2s;
@@ -136,8 +136,8 @@
 }
 
 .dropzone:hover {
-    border-color: var(--accent-pink);
-    background: rgba(250, 59, 108, 0.02);
+    border-color: #000000;
+    background: rgba(0, 0, 0, 0.02);
 }
 
 .dz-icon {
@@ -165,7 +165,7 @@
 .dz-pdf-thumb {
     width: 64px;
     height: 64px;
-    background: #000;
+    background: var(--accent-red);
     color: #fff;
     border-radius: 12px;
     display: flex;
@@ -206,8 +206,8 @@
 }
 
 .btn-secondary {
-    background: #f0f0f0;
-    color: #000;
+    background: var(--bg-input);
+    color: var(--text-main);
     padding: 0.6rem 1.25rem;
     border-radius: 10px;
     font-weight: 700;
@@ -216,7 +216,7 @@
 }
 
 .btn-primary-upload {
-    background: #000;
+    background: var(--accent-red);
     color: #fff;
     padding: 1rem;
     border-radius: 12px;
@@ -227,7 +227,7 @@
 }
 
 .btn-primary-upload:hover:not(.disabled) {
-    background: #333;
+    background: var(--accent-red-hover);
     transform: translateY(-2px);
 }
 
@@ -238,7 +238,7 @@
 
 /* Processing State */
 .processing-state {
-    background: #fff;
+    background: var(--bg-elevated);
     border-radius: 24px;
     padding: 4rem 3rem;
     box-shadow: var(--shadow-soft);
@@ -260,7 +260,7 @@
 .loader-ring {
     width: 100%;
     height: 100%;
-    border: 8px solid #f0f0f0;
+    border: 8px solid var(--border-color);
     border-top: 8px solid var(--accent-pink);
     border-radius: 50%;
     animation: rotate 1.5s linear infinite;
@@ -288,7 +288,7 @@
 .progress-bar-container {
     width: 100%;
     height: 8px;
-    background: #f0f0f0;
+    background: var(--bg-input);
     border-radius: 10px;
     overflow: hidden;
 }
@@ -326,7 +326,7 @@
 .extract-header {
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .extract-header-top {
@@ -337,7 +337,7 @@
 }
 
 .btn-save-review {
-    background: #000;
+    background: var(--accent-red);
     color: #fff;
     border: none;
     padding: 0.65rem 1.5rem;
@@ -373,9 +373,9 @@
 }
 
 .btn-back-upload-pill {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    color: #000;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
     font-weight: 700;
     font-size: 0.85rem;
     padding: 0.6rem 1.25rem;
@@ -391,9 +391,9 @@
 }
 
 .btn-back-upload-pill:hover {
-    background: #000;
+    background: var(--accent-red);
     color: #fff;
-    border-color: #000;
+    border-color: var(--text-main);
     transform: translateX(-4px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
@@ -407,7 +407,7 @@
 }
 
 .btn-reupload-secondary {
-    background: #ecfdf5;
+    background: rgba(34, 197, 94, 0.15);
     border: 1px solid #10b981;
     color: #10b981;
     padding: 0.65rem 1.5rem;
@@ -437,7 +437,7 @@
 
 /* PO Preview Side */
 .po-preview-side {
-    background: #fff;
+    background: var(--bg-elevated);
     border-radius: 12px;
     border: var(--border-subtle);
     display: flex;
@@ -448,7 +448,7 @@
 }
 
 .po-preview-header {
-    background: #fafafa;
+    background: var(--bg-card);
     padding: 1.25rem;
     font-weight: 750;
     font-size: 0.85rem;
@@ -464,7 +464,7 @@
     padding: 1.5rem;
     display: flex;
     justify-content: center;
-    background: #f8f9fa;
+    background: var(--bg-input);
 }
 
 .po-preview-img {
@@ -485,7 +485,7 @@
 
 .pdf-badge {
     padding: 0.4rem 1rem;
-    background: #000;
+    background: var(--accent-red);
     color: #fff;
     border-radius: 8px;
     font-size: 0.75rem;
@@ -512,7 +512,7 @@
 }
 
 .extract-card {
-    background: #fff;
+    background: var(--bg-elevated);
     border: var(--border-subtle);
     border-radius: 12px;
     padding: 1.25rem;
@@ -528,7 +528,7 @@
 }
 
 .extract-card:hover {
-    border-color: #000;
+    border-color: var(--text-main);
     transform: translateX(8px);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
 }
@@ -554,7 +554,7 @@
 }
 
 .card-type-icon.tax {
-    background: #000;
+    background: var(--accent-red);
 }
 
 .card-type-icon.delivery {
@@ -583,7 +583,7 @@
 .btn-card-share {
     background: transparent;
     border: none;
-    color: #999;
+    color: var(--text-muted);
     padding: 8px;
     border-radius: 8px;
     cursor: pointer;
@@ -594,7 +594,7 @@
 }
 
 .btn-card-share:hover {
-    background: #f5f5f5;
+    background: var(--bg-input);
     color: var(--accent-pink);
     transform: scale(1.1);
 }
@@ -642,7 +642,7 @@
 
 .btn-card-edit {
     width: 100%;
-    background: #000;
+    background: var(--accent-red);
     color: #fff;
     border: none;
     padding: 0.9rem;
@@ -654,14 +654,14 @@
 }
 
 .btn-card-edit:hover {
-    background: #222;
+    background: var(--accent-red-hover);
     transform: scale(0.99);
 }
 
 /* Custom Add Card */
 .extract-card.custom-add {
-    border: 2px dashed #eee;
-    background: #fafafa;
+    border: 2px dashed #000000;
+    background: var(--bg-card);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -672,9 +672,9 @@
 }
 
 .extract-card.custom-add:hover {
-    border-color: #000;
+    border-color: #000000;
     opacity: 1;
-    background: #fff;
+    background: var(--bg-elevated);
     transform: none;
 }
 
@@ -728,7 +728,7 @@
 .reconciliation-section {
     margin-top: 3rem;
     padding-top: 3rem;
-    border-top: 2px dashed #eee;
+    border-top: 2px dashed var(--border-color);
 }
 
 .reconciliation-header {
@@ -768,7 +768,7 @@
 }
 
 .reco-stat-pill.available {
-    background: #ecfdf5;
+    background: rgba(34, 197, 94, 0.15);
     color: #10b981;
 }
 
@@ -791,7 +791,7 @@
 }
 
 .reco-card {
-    background: #fff;
+    background: var(--bg-elevated);
     border-radius: 12px;
     padding: 1.5rem;
     border: var(--border-subtle);
@@ -877,7 +877,7 @@
 
 .reco-text span {
     font-size: 0.7rem;
-    color: #999;
+    color: var(--text-muted);
     font-weight: 600;
 }
 
@@ -911,7 +911,7 @@
 
 .empty-row {
     text-align: center;
-    color: #aaa;
+    color: var(--text-muted);
     padding: 2rem !important;
     font-weight: 600;
 }
@@ -919,7 +919,7 @@
 .subtext {
     display: block;
     font-size: 0.7rem;
-    color: #999;
+    color: var(--text-muted);
     font-weight: 600;
 }
 
@@ -931,7 +931,7 @@
 
 /* Selection Phase Styles */
 .selection-phase {
-    background: #fff;
+    background: var(--bg-elevated);
     border-radius: 12px;
     padding: 3rem;
     box-shadow: var(--shadow-soft);
@@ -983,7 +983,7 @@
 .doc-selector-container {
     margin-top: 3rem;
     padding-top: 3rem;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid var(--border-color);
 }
 
 .selector-title {
@@ -1009,8 +1009,8 @@
 }
 
 .selector-card-modern {
-    background: #fff;
-    border: 2px solid #f0f0f0;
+    background: var(--bg-elevated);
+    border: 2px solid var(--border-color);
     border-radius: 12px;
     padding: 1.5rem;
     display: flex;
@@ -1023,14 +1023,14 @@
 }
 
 .selector-card-modern:hover {
-    border-color: #000;
+    border-color: var(--text-main);
     transform: translateY(-4px);
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
 }
 
 .selector-card-modern.active {
-    border-color: #000;
-    background: #000;
+    border-color: var(--text-main);
+    background: var(--accent-red);
     color: #fff;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
@@ -1039,7 +1039,7 @@
     width: 20px;
     height: 20px;
     border-radius: 6px;
-    border: 2px solid #e2e8f0;
+    border: 2px solid var(--border-color);
     position: absolute;
     top: 1.5rem;
     right: 1.5rem;
@@ -1050,16 +1050,16 @@
 }
 
 .selector-card-modern.active .card-selection-check {
-    background: #fff;
+    background: var(--bg-elevated);
     border-color: #fff;
-    color: #000;
+    color: var(--text-main);
 }
 
 .card-icon-modern {
     width: 48px;
     height: 48px;
     border-radius: 12px;
-    background: #f8fafc;
+    background: var(--bg-input);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1090,15 +1090,15 @@
     align-items: center;
     margin-top: 3rem;
     padding-top: 2rem;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid var(--border-color);
 }
 
 .btn-secondary-modern {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
     padding: 0.8rem 1.5rem;
     border-radius: 12px;
     font-weight: 700;
@@ -1109,7 +1109,7 @@
 }
 
 .btn-secondary-modern:hover {
-    background: #f8fafc;
+    background: var(--bg-input);
     border-color: #cbd5e1;
     transform: translateX(-4px);
 }
@@ -1118,7 +1118,7 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    background: #000;
+    background: var(--accent-red);
     color: #fff;
     border: none;
     padding: 1rem 2rem;
@@ -1131,7 +1131,7 @@
 }
 
 .btn-primary-generate:hover:not(.disabled) {
-    background: #222;
+    background: var(--accent-red-hover);
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
@@ -1145,7 +1145,7 @@
 .reco-grid-mini {
     max-height: 400px;
     overflow-y: auto;
-    border: 1px solid #f0f0f0;
+    border: 1px solid var(--border-color);
     border-radius: 12px;
 }
 

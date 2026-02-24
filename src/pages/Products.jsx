@@ -1,10 +1,14 @@
 import React, { useState, useMemo } from 'react'
 import { useProcurement } from '../context/ProcurementContext.js'
+import ProductSparkline from '../components/ProductSparkline.jsx'
 import './Products.css'
 
 
 export default function Products() {
-    const { products, addProduct, updateProduct, deleteProduct, getProductStatus } = useProcurement();
+    const {
+        products, addProduct, updateProduct, deleteProduct,
+        getProductStatus, clearProductsNotification, getProductPriceHistory
+    } = useProcurement();
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
     const [priceFilter, setPriceFilter] = useState('All');
@@ -12,10 +16,14 @@ export default function Products() {
     const itemsPerPage = 10;
     const [expandedProductId, setExpandedProductId] = useState(null);
     const [editingProduct, setEditingProduct] = useState(null);
+
+    // Clear sidebar notification when products page is visited
+    React.useEffect(() => {
+        clearProductsNotification();
+    }, []);
     const [newProduct, setNewProduct] = useState({
         name: '',
         category: 'Electronics',
-        sku: '',
         price: '',
         stock: '',
         incoming: '',
@@ -26,7 +34,7 @@ export default function Products() {
 
     const filteredProducts = useMemo(() => {
         return products.filter(p => {
-            const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase());
+            const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
             const matchesStatus = statusFilter === 'All' || getProductStatus(p.stock) === statusFilter;
 
             let matchesPrice = true;
@@ -75,7 +83,6 @@ export default function Products() {
         setNewProduct({
             name: '',
             category: 'Electronics',
-            sku: '',
             price: '',
             stock: '',
             incoming: '',
@@ -103,7 +110,8 @@ export default function Products() {
     };
 
     const handleSaveEdit = () => {
-        updateProduct(editingProduct);
+        // Automatically remove "New" badge when product is edited
+        updateProduct({ ...editingProduct, isNew: false });
         setExpandedProductId(null);
         setEditingProduct(null);
     };
@@ -156,16 +164,6 @@ export default function Products() {
                                         placeholder="Enter name"
                                         value={newProduct.name}
                                         onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label>SKU</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        placeholder="AFZM000"
-                                        value={newProduct.sku}
-                                        onChange={e => setNewProduct({ ...newProduct, sku: e.target.value })}
                                     />
                                 </div>
                                 <div className="form-group">
@@ -311,9 +309,9 @@ export default function Products() {
                                 <th><input type="checkbox" /></th>
                                 <th>Product Name</th>
                                 <th>Category</th>
-                                <th>SKU</th>
                                 <th>Incoming</th>
                                 <th>Stock</th>
+                                <th>Trend</th>
                                 <th>Status</th>
                                 <th>Price</th>
                                 <th>Action</th>
@@ -330,13 +328,16 @@ export default function Products() {
                                         <td>
                                             <div className="product-info">
                                                 <div className="product-img-mini">{p.image}</div>
-                                                <span className="product-name">{p.name}</span>
+                                                <div className="product-name-with-badge">
+                                                    <span className="product-name">{p.name}</span>
+                                                    {p.isNew && <span className="p-new-badge">New</span>}
+                                                </div>
                                             </div>
                                         </td>
                                         <td>{p.category}</td>
-                                        <td><span className="sku-tag">{p.sku}</span></td>
                                         <td>{p.incoming}</td>
                                         <td>{p.stock}</td>
+                                        <td><ProductSparkline data={getProductPriceHistory(p.name)} /></td>
                                         <td>
                                             <span className={`status-badge ${getProductStatus(p.stock).toLowerCase().replace(/\s+/g, '-')}`}>
                                                 {getProductStatus(p.stock)}
@@ -386,14 +387,6 @@ export default function Products() {
                                                                     type="text"
                                                                     value={editingProduct.size}
                                                                     onChange={e => setEditingProduct({ ...editingProduct, size: e.target.value })}
-                                                                />
-                                                            </div>
-                                                            <div className="detail-field">
-                                                                <label>ID Number</label>
-                                                                <input
-                                                                    type="text"
-                                                                    value={editingProduct.sku}
-                                                                    onChange={e => setEditingProduct({ ...editingProduct, sku: e.target.value })}
                                                                 />
                                                             </div>
                                                             <div className="detail-field">
@@ -518,6 +511,6 @@ export default function Products() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }

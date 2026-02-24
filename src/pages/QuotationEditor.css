@@ -2,15 +2,15 @@
     display: flex;
     height: calc(100vh - 80px);
     /* 80px is topbar height */
-    background: #f1f5f9;
+    background: var(--bg-input);
     overflow: hidden;
 }
 
 /* Sidebar Controls */
 .editor-sidebar-controls {
     width: 380px;
-    background: #fff;
-    border-right: 1px solid #e2e8f0;
+    background: var(--bg-elevated);
+    border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
     box-shadow: 4px 0 15px rgba(0, 0, 0, 0.02);
@@ -19,7 +19,7 @@
 
 .sidebar-header {
     padding: 1.5rem;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .btn-back {
@@ -28,7 +28,7 @@
     gap: 0.5rem;
     background: none;
     border: none;
-    color: #64748b;
+    color: var(--text-muted);
     font-weight: 700;
     font-size: 0.9rem;
     cursor: pointer;
@@ -37,7 +37,7 @@
 }
 
 .btn-back:hover {
-    color: #000;
+    color: var(--text-main);
 }
 
 .sidebar-header h2 {
@@ -49,14 +49,14 @@
 
 .sidebar-header p {
     font-size: 0.8rem;
-    color: #94a3b8;
+    color: var(--text-muted);
     font-weight: 600;
 }
 
 .sidebar-tabs {
     display: flex;
     padding: 0.5rem;
-    background: #f8fafc;
+    background: var(--bg-input);
     gap: 0.25rem;
 }
 
@@ -67,15 +67,15 @@
     background: transparent;
     font-size: 0.8rem;
     font-weight: 700;
-    color: #64748b;
+    color: var(--text-muted);
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .tab-link.active {
-    background: #fff;
-    color: #000;
+    background: var(--bg-elevated);
+    color: var(--text-main);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
@@ -102,7 +102,7 @@
 .form-group textarea {
     width: 100%;
     padding: 0.75rem 1rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 0.9rem;
     font-weight: 600;
@@ -117,16 +117,16 @@
 
 .item-edit-box {
     padding: 1rem;
-    background: #f8fafc;
+    background: var(--bg-input);
     border-radius: 12px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-color);
 }
 
 .edit-name {
     width: 100%;
     background: transparent;
     border: none;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid var(--border-color);
     padding: 0.5rem 0;
     font-weight: 800;
     color: #1e293b;
@@ -147,7 +147,7 @@
 .field-half label {
     font-size: 0.7rem;
     font-weight: 800;
-    color: #94a3b8;
+    color: var(--text-muted);
     display: block;
     margin-bottom: 0.25rem;
 }
@@ -156,14 +156,14 @@
     width: 100%;
     padding: 0.5rem;
     border-radius: 6px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-color);
     font-weight: 700;
 }
 
 .edit-row-time label {
     font-size: 0.7rem;
     font-weight: 800;
-    color: #94a3b8;
+    color: var(--text-muted);
     display: block;
     margin-bottom: 0.25rem;
 }
@@ -172,7 +172,7 @@
     width: 100%;
     padding: 0.5rem;
     border-radius: 6px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-color);
     font-weight: 700;
 }
 
@@ -189,9 +189,9 @@
 .btn-add-line {
     width: 100%;
     padding: 1rem;
-    background: #f1f5f9;
+    background: var(--bg-input);
     border: 2px dashed #cbd5e1;
-    color: #64748b;
+    color: var(--text-muted);
     font-weight: 800;
     border-radius: 12px;
     cursor: pointer;
@@ -199,20 +199,20 @@
 }
 
 .btn-add-line:hover {
-    background: #e2e8f0;
+    background: var(--border-color);
     color: #1e293b;
 }
 
 .editor-actions-fixed {
     padding: 1.5rem;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
 }
 
 .btn-action-save {
-    background: #000;
+    background: var(--accent-red);
     color: #fff;
     border: none;
     padding: 1rem;
@@ -223,9 +223,9 @@
 }
 
 .btn-action-download {
-    background: #fff;
-    color: #000;
-    border: 1px solid #e2e8f0;
+    background: var(--bg-elevated);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
     padding: 1rem;
     border-radius: 12px;
     font-weight: 800;
@@ -239,26 +239,30 @@
     padding: 4rem 2rem;
     display: flex;
     justify-content: center;
-    background: #cbd5e1;
+    background: transparent;
 }
 
 .preview-sheet {
-    width: 800px;
-    min-height: 1100px;
-    background: #fff;
+    width: 794px;
+    height: 1123px;
+    background: var(--bg-elevated);
     box-shadow: 0 40px 80px rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+    position: relative;
 }
 
 .sheet-header-dark {
     background: #2d3436;
-    /* Dark slate matching the image */
     color: #fff;
-    padding: 4rem;
+    padding: 2.5rem 3rem;
     display: flex;
     justify-content: space-between;
     position: relative;
+    flex-shrink: 0;
+    margin: 5px;
+    border-radius: 12px;
 }
 
 .header-left h1 {
@@ -322,8 +326,8 @@
 }
 
 .total-due-box {
-    background: #fff;
-    color: #000;
+    background: var(--bg-elevated);
+    color: var(--text-main);
     padding: 1.5rem 2.5rem;
     display: flex;
     flex-direction: column;
@@ -350,8 +354,9 @@
 
 /* Body */
 .sheet-body {
-    padding: 4rem;
+    padding: 2rem 3rem;
     flex: 1;
+    overflow: hidden;
 }
 
 .quot-table {
@@ -446,11 +451,16 @@
 
 /* Footer */
 .sheet-footer {
-    padding: 4rem;
+    padding: 2rem 3rem;
     display: flex;
     justify-content: center;
     gap: 6rem;
-    background: #f9f9f9;
+    background: #2d3436;
+    color: #fff;
+    margin: 5px;
+    margin-top: auto;
+    border-radius: 12px;
+    flex-shrink: 0;
 }
 
 .footer-col {
@@ -461,14 +471,14 @@
     display: block;
     font-size: 0.75rem;
     font-weight: 800;
-    color: #2d3436;
+    color: #fff;
     margin-bottom: 0.75rem;
 }
 
 .footer-col pre {
     font-family: inherit;
     font-size: 0.8rem;
-    color: #adb5bd;
+    color: #cbd5e1;
     font-weight: 700;
     line-height: 1.5;
 }

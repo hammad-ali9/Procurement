@@ -134,7 +134,7 @@ export default function Topbar() {
         const query = globalSearchQuery.toLowerCase()
 
         const matchedProducts = products.filter(p =>
-            p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query)
+            p.name.toLowerCase().includes(query)
         ).slice(0, 5)
 
         const matchedInvoices = invoices.filter(inv =>
@@ -261,7 +261,7 @@ export default function Topbar() {
                                                 <div className="sr-icon">{p.image}</div>
                                                 <div className="sr-info">
                                                     <span className="sr-name">{p.name}</span>
-                                                    <span className="sr-meta">{p.sku} • {p.stock} in stock</span>
+                                                    <span className="sr-meta">{p.stock} in stock</span>
                                                 </div>
                                             </div>
                                         ))}

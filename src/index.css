@@ -78,6 +78,16 @@
 
   /* Font */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* ── Surface & Elevation Tokens ── */
+  --bg-elevated: #ffffff;
+  --bg-input: #f5f7fa;
+  --border-color: #e5e7eb;
+
+  /* ── Accent System ── */
+  --accent-red: #1f1f1f;
+  --accent-red-hover: #333333;
+  --accent-red-glow: rgba(31, 31, 31, 0.08);
 }
 
 /* --- Reset & Base --- */

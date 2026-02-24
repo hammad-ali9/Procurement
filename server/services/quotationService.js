@@ -22,7 +22,7 @@ OUTPUT FORMAT:
 Return ONLY a raw JSON object (no markdown, no explanations) with this schema:
 {
   "available": [
-    { "id": 1, "quantity": 5, "matchReason": "Matched 'laptops' to 'MacBook Pro' (Electronics)" }
+    { "id": 1, "name": "MacBook Pro", "quantity": 5, "matchReason": "Matched 'laptops' to 'MacBook Pro' (Electronics)" }
   ],
   "missing": [
     { "name": "Office Chair", "quantity": 10 }
@@ -96,7 +96,7 @@ function simulateQuotation(query, inventory) {
             }
             return t.length > 3 && productName.includes(t);
         })) {
-            available.push({ id: p.id, quantity: 1, matchReason: "Simulated Keyword Match" });
+            available.push({ id: p.id, name: p.name, quantity: 1, matchReason: "Simulated Keyword Match" });
         }
     });
 

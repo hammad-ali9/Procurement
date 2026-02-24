@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getPKTInvoiceDate } from '../components/Topbar';
 import { ProcurementContext } from './ProcurementContext.js';
 
 const initialProducts = [
-    { id: 1, name: 'PixelMate', category: 'Electronics', sku: 'AFZM647', incoming: 478, stock: 5, status: 'Low stock', price: 4347, image: '🛒', createdAt: '2024-09-15' },
-    { id: 2, name: 'FusionLink', category: 'Electronics', sku: 'AFZM622', incoming: 418, stock: 761, status: 'In stock', price: 5347, image: '📺', createdAt: '2024-09-20' },
-    { id: 3, name: 'VelvetAura', category: 'Apparel', sku: 'AFZM655', incoming: 471, stock: 5, status: 'Low stock', price: 2347, image: '👗', createdAt: '2024-10-01' },
-    { id: 4, name: 'UrbanFlex Sneakers', category: 'Apparel', sku: 'AFZM653', incoming: 178, stock: 65, status: 'Low stock', price: 9347, image: '👟', createdAt: '2024-10-05' },
-    { id: 5, name: 'SilkSage Wrap', category: 'Wellness', sku: 'AFZM699', incoming: 473, stock: 0, status: 'Out of stock', price: 4347, image: '🧴', createdAt: '2024-10-10' },
-    { id: 6, name: 'CasaLuxe', category: 'Home & Living', sku: 'AFZM633', incoming: 168, stock: 575, status: 'Low stock', price: 3347, image: '🛋️', createdAt: '2024-10-15' },
-    { id: 7, name: 'Nexus Watch', category: 'Electronics', sku: 'AFZM701', incoming: 120, stock: 0, status: 'Out of stock', price: 1247, image: '⌚', createdAt: '2024-10-20' },
-    { id: 8, name: 'Aero Headphones', category: 'Electronics', sku: 'AFZM702', incoming: 85, stock: 320, status: 'In stock', price: 847, image: '🎧', createdAt: '2024-10-25' },
+    { id: 1, name: 'PixelMate', category: 'Electronics', incoming: 478, stock: 5, status: 'Low stock', price: 4347, image: '🛒', createdAt: '2024-09-15' },
+    { id: 2, name: 'FusionLink', category: 'Electronics', incoming: 418, stock: 761, status: 'In stock', price: 5347, image: '📺', createdAt: '2024-09-20' },
+    { id: 3, name: 'VelvetAura', category: 'Apparel', incoming: 471, stock: 5, status: 'Low stock', price: 2347, image: '👗', createdAt: '2024-10-01' },
+    { id: 4, name: 'UrbanFlex Sneakers', category: 'Apparel', incoming: 178, stock: 65, status: 'Low stock', price: 9347, image: '👟', createdAt: '2024-10-05' },
+    { id: 5, name: 'SilkSage Wrap', category: 'Wellness', incoming: 473, stock: 0, status: 'Out of stock', price: 4347, image: '🧴', createdAt: '2024-10-10' },
+    { id: 6, name: 'CasaLuxe', category: 'Home & Living', incoming: 168, stock: 575, status: 'Low stock', price: 3347, image: '🛋️', createdAt: '2024-10-15' },
+    { id: 7, name: 'Nexus Watch', category: 'Electronics', incoming: 120, stock: 0, status: 'Out of stock', price: 1247, image: '⌚', createdAt: '2024-10-20' },
+    { id: 8, name: 'Aero Headphones', category: 'Electronics', incoming: 85, stock: 320, status: 'In stock', price: 847, image: '🎧', createdAt: '2024-10-25' },
 ];
 
 export const ProcurementProvider = ({ children }) => {
@@ -35,13 +35,42 @@ export const ProcurementProvider = ({ children }) => {
             businessName: 'Karobar Enterprises',
             officeAddress: '123 Business Way, Suite 100\nTech City, TC 54321',
             email: 'trader@nexaura.com',
-            role: 'Procurement Manager'
+            role: 'Procurement Manager',
+            phone: '',
+            ntnNumber: '',
+            gstNumber: '',
+            vendorNumber: '',
+            stampSignature: null
         };
     });
 
     useEffect(() => {
         localStorage.setItem('procure_trader_profile', JSON.stringify(traderProfile));
     }, [traderProfile]);
+
+    // ── Bank Details ──
+    const [bankDetails, setBankDetails] = useState(() => {
+        const saved = localStorage.getItem('procure_bank_details');
+        return saved ? JSON.parse(saved) : {
+            bankName: '',
+            accountTitle: '',
+            accountNumber: '',
+            iban: '',
+            swiftCode: '',
+            branchName: ''
+        };
+    });
+
+    useEffect(() => {
+        localStorage.setItem('procure_bank_details', JSON.stringify(bankDetails));
+    }, [bankDetails]);
+
+    const isProfileComplete = useCallback(() => {
+        const p = traderProfile;
+        const b = bankDetails;
+        return !!(companyLogo && p.businessName && p.officeAddress && p.phone && p.ntnNumber && p.vendorNumber && p.stampSignature &&
+            b.bankName && b.accountTitle && b.accountNumber && b.iban);
+    }, [companyLogo, traderProfile, bankDetails]);
 
     // ── Preferences (Currency, Timezone) ──
     const [preferences, setPreferences] = useState(() => {
@@ -94,10 +123,21 @@ export const ProcurementProvider = ({ children }) => {
         localStorage.setItem('procure_notifications', JSON.stringify(notifications));
     }, [notifications]);
 
+    // ── Products Notification Dot ──
+    const [productsNotification, setProductsNotification] = useState(() => {
+        return localStorage.getItem('procure_products_notif') === 'true';
+    });
+
+    useEffect(() => {
+        localStorage.setItem('procure_products_notif', productsNotification);
+    }, [productsNotification]);
+
+    const clearProductsNotification = () => setProductsNotification(false);
+
     // ── Global Search ──
     const [globalSearchQuery, setGlobalSearchQuery] = useState('');
 
-    const addNotification = (text, type = 'info') => {
+    const addNotification = useCallback((text, type = 'info') => {
         const now = new Date();
         const pktTime = now.toLocaleTimeString('en-PK', {
             timeZone: 'Asia/Karachi',
@@ -106,7 +146,7 @@ export const ProcurementProvider = ({ children }) => {
             hour12: true,
         });
         const notif = {
-            id: `notif-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             text,
             type, // 'success', 'info', 'warning', 'error'
             time: pktTime,
@@ -114,7 +154,7 @@ export const ProcurementProvider = ({ children }) => {
             unread: true,
         };
         setNotifications(prev => [notif, ...prev]);
-    };
+    }, []);
 
     const markAllNotificationsRead = () => {
         setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
@@ -140,6 +180,9 @@ export const ProcurementProvider = ({ children }) => {
 
     const addMultipleInvoices = (newInvoices) => {
         const now = new Date().toISOString();
+        let addedCount = 0;
+        let firstId = '';
+
         setInvoices(prev => {
             const existingIds = new Set(prev.map(inv => inv.id));
             const filteredNew = newInvoices
@@ -149,15 +192,19 @@ export const ProcurementProvider = ({ children }) => {
                     processedAt: inv.processedAt || now
                 }));
 
-            if (filteredNew.length === 0) return prev;
+            addedCount = filteredNew.length;
+            if (addedCount === 1) firstId = filteredNew[0].id;
 
-            if (filteredNew.length === 1) {
-                addNotification(`Invoice ${filteredNew[0].id} added to history`, 'success');
-            } else {
-                addNotification(`${filteredNew.length} invoices added to history`, 'success');
-            }
+            if (addedCount === 0) return prev;
             return [...filteredNew, ...prev];
         });
+
+        // Trigger notification outside of state setter
+        if (addedCount === 1) {
+            addNotification(`Invoice ${firstId} added to history`, 'success');
+        } else if (addedCount > 1) {
+            addNotification(`${addedCount} invoices added to history`, 'success');
+        }
     };
 
     const createCustomInvoice = () => {
@@ -179,7 +226,7 @@ export const ProcurementProvider = ({ children }) => {
         };
         setInvoices(prev => [newInvoice, ...prev]);
         addNotification(`Custom invoice ${id} created`, 'info');
-        return groupId;
+        return id;
     };
 
     const updateInvoice = (updatedInvoice) => {
@@ -267,7 +314,7 @@ export const ProcurementProvider = ({ children }) => {
         localStorage.setItem('procure_pro_products', JSON.stringify(products));
     }, [products]);
 
-    const addProduct = (newProduct) => {
+    const addProduct = (newProduct, options = {}) => {
         const product = {
             ...newProduct,
             id: products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1,
@@ -275,9 +322,11 @@ export const ProcurementProvider = ({ children }) => {
             stock: newProduct.stock || 0,
             status: newProduct.status || 'In stock',
             image: newProduct.image || '📦',
-            createdAt: new Date().toISOString().split('T')[0]
+            createdAt: new Date().toISOString().split('T')[0],
+            isNew: options.isNew || false
         };
         setProducts(prev => [product, ...prev]);
+        setProductsNotification(true);
         addNotification(`Product ${product.name} added to inventory`, 'success');
     };
 
@@ -299,6 +348,8 @@ export const ProcurementProvider = ({ children }) => {
         if (stock <= 10) return 'Low stock';
         return 'In stock';
     };
+
+    // Move this down after purchaseRequests and products are initialized
 
     // ── Quotations (persisted to localStorage) ──
     const [quotations, setQuotations] = useState(() => {
@@ -362,6 +413,100 @@ export const ProcurementProvider = ({ children }) => {
         localStorage.setItem('procure_quotation_draft', JSON.stringify(quotationDraft));
     }, [quotationDraft]);
 
+    // ── Purchase Requests (persisted to localStorage) ──
+    const [purchaseRequests, setPurchaseRequests] = useState(() => {
+        const saved = localStorage.getItem('procure_pro_prs');
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    useEffect(() => {
+        localStorage.setItem('procure_pro_prs', JSON.stringify(purchaseRequests));
+    }, [purchaseRequests]);
+
+    const addPurchaseRequest = (newPR) => {
+        setPurchaseRequests(prev => [newPR, ...prev]);
+        addNotification(`PR ${newPR.id} created successfully`, 'success');
+    };
+
+    const updatePurchaseRequest = (updatedPR) => {
+        setPurchaseRequests(prev => prev.map(p => p.id === updatedPR.id ? updatedPR : p));
+        addNotification(`PR ${updatedPR.id} updated`, 'info');
+    };
+
+    const deletePurchaseRequest = (id) => {
+        setPurchaseRequests(prev => prev.filter(p => p.id !== id));
+        addNotification(`PR ${id} deleted`, 'warning');
+    };
+
+    const getPurchaseRequestById = (id) => purchaseRequests.find(p => p.id === id);
+
+    const getProductPriceHistory = useCallback((productName) => {
+        if (!productName) return [];
+
+        // Find all approved PRs that contain this product
+        const history = purchaseRequests
+            .filter(pr => pr.status === 'Approved')
+            .flatMap(pr => {
+                const item = pr.items.find(i => i.name.toLowerCase() === productName.toLowerCase());
+                if (item) {
+                    return [{
+                        date: pr.date,
+                        price: item.price || 0,
+                        timestamp: new Date(pr.date).getTime()
+                    }];
+                }
+                return [];
+            })
+            .sort((a, b) => a.timestamp - b.timestamp);
+
+        // If no history, return current product price as a single point
+        if (history.length === 0) {
+            const product = products.find(p => p.name.toLowerCase() === productName.toLowerCase());
+            return [{ date: 'Initial', price: product?.price || 0 }];
+        }
+
+        return history;
+    }, [purchaseRequests, products]);
+
+    // ── PR Draft ──
+    const [prDraft, setPrDraft] = useState(() => {
+        const saved = localStorage.getItem('procure_pr_draft');
+        return saved ? JSON.parse(saved) : { query: '', results: null };
+    });
+
+    useEffect(() => {
+        localStorage.setItem('procure_pr_draft', JSON.stringify(prDraft));
+    }, [prDraft]);
+
+    // ── Suppliers ──
+    const [suppliers, setSuppliers] = useState(() => {
+        const saved = localStorage.getItem('procure_pro_suppliers');
+        return saved ? JSON.parse(saved) : [
+            { id: 1, name: 'Al Raha Steel Trading', contact: 'Khalid Al Mansouri', email: 'khalid@alrahasteel.ae', phone: '+971 55 123 4567', category: 'Raw Materials', status: 'Active' },
+            { id: 2, name: 'Gulf Packaging Solutions', contact: 'Sara Ahmed', email: 'sara@gulfpack.ae', phone: '+971 50 987 6543', category: 'Packaging', status: 'Active' },
+            { id: 3, name: 'Emirates Industrial Supplies', contact: 'Mohammed Raza', email: 'mraza@eisupply.ae', phone: '+971 56 555 7890', category: 'Equipment', status: 'Active' }
+        ];
+    });
+
+    useEffect(() => {
+        localStorage.setItem('procure_pro_suppliers', JSON.stringify(suppliers));
+    }, [suppliers]);
+
+    const addSupplier = (newSupplier) => {
+        const s = {
+            ...newSupplier,
+            id: suppliers.length > 0 ? Math.max(...suppliers.map(sv => sv.id)) + 1 : 1,
+            status: 'Active',
+            totalOrders: 0,
+            totalValue: 0,
+            rating: 5.0,
+            since: new Date().toISOString().split('T')[0]
+        };
+        setSuppliers(prev => [s, ...prev]);
+        addNotification(`Supplier ${s.name} added`, 'success');
+        return s;
+    };
+
     return (
         <ProcurementContext.Provider value={{
             invoices,
@@ -393,9 +538,14 @@ export const ProcurementProvider = ({ children }) => {
             updateProduct,
             deleteProduct,
             getProductStatus,
+            productsNotification,
+            clearProductsNotification,
             // Trader Profile
             traderProfile,
             setTraderProfile,
+            bankDetails,
+            setBankDetails,
+            isProfileComplete,
             // Quotation Draft
             quotationDraft,
             setQuotationDraft,
@@ -404,7 +554,19 @@ export const ProcurementProvider = ({ children }) => {
             addQuotation,
             updateQuotation,
             deleteQuotation,
-            getQuotationById
+            getQuotationById,
+            // Purchase Requests
+            purchaseRequests,
+            addPurchaseRequest,
+            updatePurchaseRequest,
+            deletePurchaseRequest,
+            getPurchaseRequestById,
+            prDraft,
+            setPrDraft,
+            // Suppliers
+            suppliers,
+            addSupplier,
+            getProductPriceHistory
         }}>
             {children}
         </ProcurementContext.Provider>

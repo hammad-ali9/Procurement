@@ -26,7 +26,8 @@ export default function InvoiceUpload() {
         setOriginalFile,
         getOriginalFile,
         products,
-        deleteInvoice
+        deleteInvoice,
+        preferences
     } = useProcurement()
 
     const getTypeIcon = (type) => {
@@ -84,12 +85,17 @@ export default function InvoiceUpload() {
                         const existing = acc.find(i => {
                             const iName = (i.name || i.desc || "").toLowerCase();
                             const itemName = (item.name || item.desc || "").toLowerCase();
-                            return (iName === itemName && iName !== "") || (item.sku && i.sku === item.sku);
+                            return (iName === itemName && iName !== "");
                         });
                         if (existing) {
-                            existing.qty += (item.quantity || item.qty || 0);
+                            existing.qty += (item.itemQuantity || item.quantity || item.qty || 0);
                         } else {
-                            acc.push({ ...item, name: item.name || item.desc || "N/A", qty: item.quantity || item.qty || 0, sku: item.sku || 'N/A' });
+                            acc.push({
+                                ...item,
+                                name: item.name || item.itemName || item.desc || "N/A",
+                                qty: item.itemQuantity || item.quantity || item.qty || 0,
+                                rate: item.itemRate || item.rate || 0
+                            });
                         }
                     });
                 }
@@ -100,10 +106,9 @@ export default function InvoiceUpload() {
         if (itemsToReconcile.length === 0) return null;
 
         const allItemsFlat = selectionPhase ? itemsToReconcile.map(i => ({
-            name: i.name || i.desc || 'N/A',
-            qty: i.quantity || i.qty || 0,
-            sku: i.sku || 'N/A',
-            rate: i.rate || 0,
+            name: i.name || i.itemName || i.desc || 'N/A',
+            qty: i.itemQuantity || i.quantity || i.qty || 0,
+            rate: i.itemRate || i.rate || 0,
             originalItem: i
         })) : itemsToReconcile;
 
@@ -115,8 +120,7 @@ export default function InvoiceUpload() {
             const match = products.find(p => {
                 const pName = p.name?.toLowerCase() || '';
                 const poName = poItem.name?.toLowerCase() || '';
-                return (pName && poName && pName.includes(poName)) ||
-                    (poItem.sku !== 'N/A' && p.sku === poItem.sku);
+                return (pName && poName && pName.includes(poName));
             });
 
             if (match) {
@@ -450,7 +454,10 @@ export default function InvoiceUpload() {
                                                 <thead>
                                                     <tr>
                                                         <th>Product</th>
+                                                        <th>Description</th>
                                                         <th>Qty</th>
+                                                        <th>Unit</th>
+                                                        <th>Pkg</th>
                                                         <th>Stock</th>
                                                         <th>Status</th>
                                                     </tr>
@@ -459,16 +466,17 @@ export default function InvoiceUpload() {
                                                     {reconciliation.available.concat(reconciliation.required).map((item, id) => (
                                                         <tr key={id}>
                                                             <td>
-                                                                <div className="reco-text">
-                                                                    <strong>{item.name}</strong>
-                                                                    <span>{item.sku}</span>
-                                                                </div>
+                                                                <div style={{ fontWeight: 600 }}>{item.name}</div>
+                                                                {item.itemSpecification && <div style={{ fontSize: '0.7rem', color: 'var(--primary)' }}>{item.itemSpecification}</div>}
                                                             </td>
-                                                            <td>{item.qty}</td>
+                                                            <td style={{ fontSize: '0.8rem', color: '#64748b', maxWidth: '150px' }}>{item.itemDescription || item.desc || 'Nill'}</td>
+                                                            <td style={{ fontWeight: 700 }}>{item.qty}</td>
+                                                            <td style={{ fontSize: '0.8rem', color: '#64748b' }}>{item.unitOfMeasure || item.uom || 'Unit'}</td>
+                                                            <td style={{ fontSize: '0.8rem', color: '#64748b' }}>{item.packageSize || item.pkg || 'N/A'}</td>
                                                             <td>{item.inventoryItem ? item.inventoryItem.stock : '-'}</td>
                                                             <td>
                                                                 <span className={`status-badge-mini ${item.inventoryItem ? (item.isShortage ? 'warning' : 'success') : 'danger'}`}>
-                                                                    {item.inventoryItem ? (item.isShortage ? 'Low Stock' : 'Ready') : 'New SKU'}
+                                                                    {item.inventoryItem ? (item.isShortage ? 'Low Stock' : 'Ready') : 'New Item'}
                                                                 </span>
                                                             </td>
                                                         </tr>
@@ -609,7 +617,25 @@ export default function InvoiceUpload() {
                                             <div className="card-body">
                                                 <div className="card-stat">
                                                     <label>Total Value</label>
-                                                    <div className="card-amount">Rs. {doc.total.toLocaleString()}</div>
+                                                    <div className="card-amount">
+                                                        {(() => {
+                                                            const isTax = doc.type.toLowerCase().includes('tax');
+                                                            const isDelivery = doc.type.toLowerCase().includes('delivery');
+
+                                                            if (isTax) {
+                                                                const subtotal = doc.items.reduce((acc, item) => acc + ((item.itemQuantity || item.quantity || item.qty || 0) * (item.itemRate || item.rate || 0)), 0);
+                                                                const taxAmount = (subtotal * (doc.taxRate || 0)) / 100;
+                                                                return `${preferences.currency || 'Rs.'} ${taxAmount.toLocaleString()}`;
+                                                            }
+                                                            if (isDelivery) {
+                                                                return `${preferences.currency || 'Rs.'} 0`;
+                                                            }
+                                                            // For Purchase Invoice, exclude tax
+                                                            const subtotal = doc.items.reduce((acc, item) => acc + ((item.itemQuantity || item.quantity || item.qty || 0) * (item.itemRate || item.rate || 0)), 0);
+                                                            const purchaseTotal = subtotal + (doc.delivery || 0);
+                                                            return `${preferences.currency || 'Rs.'} ${purchaseTotal.toLocaleString()}`;
+                                                        })()}
+                                                    </div>
                                                 </div>
                                                 <div className="card-stat">
                                                     <label>Status</label>
@@ -666,7 +692,10 @@ export default function InvoiceUpload() {
                                                 <thead>
                                                     <tr>
                                                         <th>Product Name</th>
-                                                        <th>PO Qty</th>
+                                                        <th>Description</th>
+                                                        <th>Qty</th>
+                                                        <th>Unit</th>
+                                                        <th>Pkg</th>
                                                         <th>In Stock</th>
                                                         <th>Status</th>
                                                     </tr>
@@ -677,13 +706,14 @@ export default function InvoiceUpload() {
                                                             <td>
                                                                 <div className="reco-item-name">
                                                                     <span className="reco-icon">{item.inventoryItem.image}</span>
-                                                                    <div className="reco-text">
-                                                                        <strong>{item.name}</strong>
-                                                                        <span>{item.sku}</span>
-                                                                    </div>
+                                                                    <div style={{ fontWeight: 600 }}>{item.name}</div>
+                                                                    {item.itemSpecification && <div style={{ fontSize: '0.7rem', color: 'var(--primary)' }}>{item.itemSpecification}</div>}
                                                                 </div>
                                                             </td>
-                                                            <td>{item.qty}</td>
+                                                            <td style={{ fontSize: '0.8rem', color: '#64748b', maxWidth: '150px' }}>{item.itemDescription || item.desc || 'Nill'}</td>
+                                                            <td style={{ fontWeight: 700 }}>{item.qty}</td>
+                                                            <td style={{ fontSize: '0.8rem', color: '#64748b' }}>{item.unitOfMeasure || item.uom || 'Unit'}</td>
+                                                            <td style={{ fontSize: '0.8rem', color: '#64748b' }}>{item.packageSize || item.pkg || 'N/A'}</td>
                                                             <td className={item.isShortage ? 'text-danger' : 'text-success'}>
                                                                 {item.inventoryItem.stock}
                                                             </td>
@@ -721,7 +751,7 @@ export default function InvoiceUpload() {
                                                         <tr key={id}>
                                                             <td>
                                                                 <strong>{item.name}</strong>
-                                                                <span className="subtext">{item.sku !== 'N/A' ? item.sku : 'SKU Unknown'}</span>
+                                                                <span className="subtext">Item Description Unknown</span>
                                                             </td>
                                                             <td>{item.qty}</td>
                                                             <td>Rs. {(item.qty * (item.rate || 0)).toLocaleString()}</td>

@@ -2,12 +2,13 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useProcurement } from '../context/ProcurementContext.js'
 import html2pdf from 'html2pdf.js'
+import InvoiceModern from '../components/InvoiceModern'
 import './InvoiceEditor.css'
 
 export default function InvoiceEditor() {
     const { id } = useParams()
     const navigate = useNavigate()
-    const { getInvoiceById, updateInvoice, companyLogo, setCompanyLogo, traderProfile, preferences } = useProcurement()
+    const { getInvoiceById, updateInvoice, companyLogo, setCompanyLogo, traderProfile, preferences, bankDetails } = useProcurement()
 
     const [invoice, setInvoice] = useState(null)
     const [activeTab, setActiveTab] = useState('items') // 'details', 'items', 'payment'
@@ -23,19 +24,47 @@ export default function InvoiceEditor() {
             // Add defaults for new fields if they don't exist
             setInvoice({
                 ...data,
+                taxRate: data.taxRate || 0,
+                delivery: data.delivery || 0,
                 dueDate: data.dueDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-                billingAddress: data.billingAddress || traderProfile?.officeAddress || '123 Business Way, Suite 100\nTech City, TC 54321',
+                billingAddress: data.billingAddress || data.customerAddress || '',
+                customerEmail: data.customerEmail || '',
+                customerPhone: data.customerPhone || '',
+                poNumber: data.poNumber || '',
                 paymentTerms: data.paymentTerms || 'Net 15',
-                notes: data.notes || 'Please include the invoice number on your payment reference. Thank you!'
+                notes: data.notes || 'Please include the invoice number on your payment reference. Thank you!',
+                items: (data.items || []).map(it => ({
+                    ...it,
+                    name: it.name || it.itemName || '',
+                    itemDescription: it.itemDescription || it.desc || '',
+                    itemSpecification: it.itemSpecification || '',
+                    itemQuantity: parseFloat(it.itemQuantity || it.quantity || it.qty || 0),
+                    unitOfMeasure: it.unitOfMeasure || it.uom || 'Unit',
+                    packageSize: it.packageSize || 'N/A',
+                    itemRate: parseFloat(it.itemRate || it.rate || 0)
+                }))
             })
         }
     }, [id, getInvoiceById])
 
     if (!invoice) return <div className="p-10">Loading invoice data...</div>
 
-    const subtotal = invoice.items.reduce((acc, item) => acc + ((item.quantity || item.qty || 0) * (item.rate || 0)), 0)
+    const subtotal = (invoice.items || []).reduce((acc, item) => acc + ((item.itemQuantity || 0) * (item.itemRate || 0)), 0)
     const taxAmount = (subtotal * invoice.taxRate) / 100
-    const total = subtotal + taxAmount + invoice.delivery
+
+    // Total calculation logic:
+    const isTaxInvoice = (invoice.type || '').toLowerCase().includes('tax');
+    const isDelivery = (invoice.type || '').toLowerCase().includes('delivery');
+    const isPurchase = !isTaxInvoice && !isDelivery;
+
+    let total = 0;
+    if (isTaxInvoice) {
+        total = taxAmount;
+    } else if (isPurchase) {
+        total = subtotal + (invoice.delivery || 0);
+    } else {
+        total = subtotal + taxAmount + (invoice.delivery || 0);
+    }
 
     const handleLogoChange = (e) => {
         const file = e.target.files[0];
@@ -59,7 +88,7 @@ export default function InvoiceEditor() {
         const newId = invoice.items.length > 0 ? Math.max(...invoice.items.map(i => i.id)) + 1 : 1
         setInvoice(prev => ({
             ...prev,
-            items: [...prev.items, { id: newId, name: 'New Item', quantity: 1, rate: 0 }]
+            items: [...prev.items, { id: newId, name: 'New Item', itemDescription: '', itemSpecification: '', itemQuantity: 1, unitOfMeasure: 'Unit', packageSize: 'N/A', itemRate: 0 }]
         }))
     }
 
@@ -77,18 +106,18 @@ export default function InvoiceEditor() {
     }
 
     const handleDownload = () => {
-        const element = previewRef.current;
+        const element = document.querySelector('.modern-invoice');
         if (!element) return;
 
         const opt = {
-            margin: [0.5, 0.5],
-            filename: `Invoice_${invoice.id}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            margin: 0,
+            filename: `${invoice.type} - ${invoice.customer}.pdf`,
+            image: { type: 'png' }, // Switched to PNG for crisp backgrounds
+            html2canvas: { scale: 3, useCORS: true, logging: false },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['css', 'legacy'] }
         };
 
-        // New html2pdf call
         html2pdf().set(opt).from(element).save();
     }
 
@@ -153,15 +182,59 @@ export default function InvoiceEditor() {
                                 </div>
                             </div>
 
-                            <h3 className="section-subtitle" style={{ marginTop: '1rem' }}>Basic Details</h3>
-                            <div className="input-field">
-                                <label>Customer / Business Name</label>
-                                <input
-                                    type="text"
-                                    value={invoice.customer}
-                                    onChange={(e) => setInvoice({ ...invoice, customer: e.target.value })}
-                                />
+                            <h3 className="section-subtitle" style={{ marginTop: '1rem' }}>Organization Details (PO Source)</h3>
+                            <div className="input-group-row">
+                                <div className="input-field">
+                                    <label>Organization Name</label>
+                                    <input
+                                        type="text"
+                                        value={invoice.customer || ''}
+                                        onChange={(e) => setInvoice({ ...invoice, customer: e.target.value })}
+                                        placeholder="Company Name"
+                                    />
+                                </div>
+                                <div className="input-field">
+                                    <label>PO Number</label>
+                                    <input
+                                        type="text"
+                                        value={invoice.poNumber || ''}
+                                        onChange={(e) => setInvoice({ ...invoice, poNumber: e.target.value })}
+                                        placeholder="Ref No."
+                                    />
+                                </div>
                             </div>
+
+                            <div className="input-group-row">
+                                <div className="input-field">
+                                    <label>Organization Email</label>
+                                    <input
+                                        type="email"
+                                        value={invoice.customerEmail || ''}
+                                        onChange={(e) => setInvoice({ ...invoice, customerEmail: e.target.value })}
+                                        placeholder="email@example.com"
+                                    />
+                                </div>
+                                <div className="input-field">
+                                    <label>Organization Phone</label>
+                                    <input
+                                        type="text"
+                                        value={invoice.customerPhone || ''}
+                                        onChange={(e) => setInvoice({ ...invoice, customerPhone: e.target.value })}
+                                        placeholder="+92..."
+                                    />
+                                </div>
+                            </div>
+                            {(invoice.type || '').toLowerCase().includes('delivery') && (
+                                <div className="input-field animate-slide-up">
+                                    <label>Delivered To (Name/Organization)</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Name of receiver..."
+                                        value={invoice.deliveredTo || ''}
+                                        onChange={(e) => setInvoice({ ...invoice, deliveredTo: e.target.value })}
+                                    />
+                                </div>
+                            )}
                             <div className="input-group-row">
                                 <div className="input-field">
                                     <label>Issue Date</label>
@@ -177,11 +250,12 @@ export default function InvoiceEditor() {
                                 </div>
                             </div>
                             <div className="input-field">
-                                <label>Billing Address</label>
+                                <label>Organization Address (Billed To)</label>
                                 <textarea
                                     rows="3"
-                                    value={invoice.billingAddress}
+                                    value={invoice.billingAddress || ''}
                                     onChange={(e) => setInvoice({ ...invoice, billingAddress: e.target.value })}
+                                    placeholder="Enter full address of the sender..."
                                 />
                             </div>
                             <div className="input-field">
@@ -197,6 +271,18 @@ export default function InvoiceEditor() {
                                     <option value="Paid">Paid</option>
                                 </select>
                             </div>
+                            <div className="input-field" style={{ marginTop: '1rem' }}>
+                                <label>Invoice Type</label>
+                                <select
+                                    value={invoice.type || 'Purchase Invoice'}
+                                    onChange={(e) => setInvoice({ ...invoice, type: e.target.value })}
+                                    className="status-select"
+                                >
+                                    <option value="Purchase Invoice">Purchase Invoice</option>
+                                    <option value="Delivery Invoice">Delivery Invoice</option>
+                                    <option value="Tax Invoice">Tax Invoice</option>
+                                </select>
+                            </div>
                         </div>
                     )}
 
@@ -210,30 +296,84 @@ export default function InvoiceEditor() {
                                 <span className="h-action"></span>
                             </div>
                             <div className="items-editor-list">
-                                {invoice.items.map(item => (
-                                    <div key={item.id} className="item-edit-row">
-                                        <input
-                                            className="i-desc"
-                                            placeholder="Item description..."
-                                            type="text"
-                                            value={item.name || item.desc || ""}
-                                            onChange={(e) => updateItem(item.id, 'name', e.target.value)}
-                                        />
-                                        <input
-                                            className="i-qty"
-                                            type="number"
-                                            value={item.quantity || item.qty || 0}
-                                            onChange={(e) => updateItem(item.id, 'quantity', parseInt(e.target.value) || 0)}
-                                        />
-                                        <input
-                                            className="i-rate"
-                                            type="number"
-                                            value={item.rate || 0}
-                                            onChange={(e) => updateItem(item.id, 'rate', parseFloat(e.target.value) || 0)}
-                                        />
-                                        <button className="btn-remove-item" onClick={() => removeItem(item.id)}>
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12" /></svg>
-                                        </button>
+                                {invoice.items.map((item, index) => (
+                                    <div key={`item-${item.id}-${index}`} className="item-edit-card animate-slide-up">
+                                        {/* Card Header: Primary Info */}
+                                        <div className="item-card-main">
+                                            <input
+                                                className="i-name-large"
+                                                placeholder="Product Name / Item Title..."
+                                                type="text"
+                                                value={item.name || ""}
+                                                onChange={(e) => updateItem(item.id, 'name', e.target.value)}
+                                            />
+
+                                            <div className="card-inputs-group">
+                                                <div className="card-input-set">
+                                                    <label>Qty</label>
+                                                    <input
+                                                        className="i-qty"
+                                                        type="number"
+                                                        placeholder="0"
+                                                        value={item.itemQuantity || 0}
+                                                        onChange={(e) => updateItem(item.id, 'itemQuantity', parseFloat(e.target.value) || 0)}
+                                                    />
+                                                </div>
+                                                <div className="card-input-set">
+                                                    <label>Rate (Rs)</label>
+                                                    <input
+                                                        className="i-rate"
+                                                        type="number"
+                                                        placeholder="0.00"
+                                                        value={item.itemRate || 0}
+                                                        onChange={(e) => updateItem(item.id, 'itemRate', parseFloat(e.target.value) || 0)}
+                                                    />
+                                                </div>
+                                                <button className="btn-remove-card" title="Remove Item" onClick={() => removeItem(item.id)}>
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {/* Card Body: Secondary Details */}
+                                        <div className="item-card-details">
+                                            <div className="detail-field">
+                                                <label>Unit of Measure</label>
+                                                <input
+                                                    placeholder="e.g. Kg, Pcs, Unit"
+                                                    type="text"
+                                                    value={item.unitOfMeasure || ""}
+                                                    onChange={(e) => updateItem(item.id, 'unitOfMeasure', e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="detail-field">
+                                                <label>Package Size</label>
+                                                <input
+                                                    placeholder="e.g. 50kg bag, Box of 10"
+                                                    type="text"
+                                                    value={item.packageSize || ""}
+                                                    onChange={(e) => updateItem(item.id, 'packageSize', e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="detail-field">
+                                                <label>Product Specification</label>
+                                                <input
+                                                    placeholder="Model, Brand, Color..."
+                                                    type="text"
+                                                    value={item.itemSpecification || ""}
+                                                    onChange={(e) => updateItem(item.id, 'itemSpecification', e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="detail-field">
+                                                <label>Additional Description</label>
+                                                <input
+                                                    placeholder="Verbatim description from PO..."
+                                                    type="text"
+                                                    value={item.itemDescription || ""}
+                                                    onChange={(e) => updateItem(item.id, 'itemDescription', e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -321,114 +461,15 @@ export default function InvoiceEditor() {
             </div>
 
             {/* Right Panel - Premium Document Preview */}
-            <div className="editor-preview-panel" ref={previewRef}>
-                <div className="invoice-container-sheet">
-                    {/* Invoice Header */}
-                    <div className="inv-header">
-                        <div className="inv-brand">
-                            <div className="inv-logo">
-                                {companyLogo ? (
-                                    <img src={companyLogo} alt="Logo" className="logo-preview-img" />
-                                ) : (
-                                    <img src="/logo/logo.png" alt="Karobar Logo" className="logo-preview-img" style={{ opacity: 0.5 }} />
-                                )}
-                            </div>
-                            <div>
-                                <h2>{traderProfile.businessName || 'Procurement Pro'}</h2>
-                                <p>Financial Operations</p>
-                            </div>
-                        </div>
-                        <div className="inv-title-box">
-                            <h1>{invoice.type?.toUpperCase() || 'INVOICE'}</h1>
-                            <div className="inv-id-tag">#{invoice.id}</div>
-                        </div>
-                    </div>
-
-                    <div className="inv-meta-grid">
-                        <div className="inv-meta-col">
-                            <label>Billed To</label>
-                            <h3>{invoice.customer}</h3>
-                            <p className="address-text">{invoice.billingAddress}</p>
-                        </div>
-                        <div className="inv-meta-col text-right">
-                            <div className="meta-item">
-                                <label>Date Issued</label>
-                                <p>{invoice.date}</p>
-                            </div>
-                            <div className="meta-item">
-                                <label>Due Date</label>
-                                <p className="text-bold">{invoice.dueDate}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Table */}
-                    <table className="inv-table">
-                        <thead>
-                            <tr>
-                                <th>Description</th>
-                                <th>Qty</th>
-                                <th>Unit Price</th>
-                                <th className="text-right">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {invoice.items.length > 0 ? invoice.items.map(item => {
-                                const qty = item.quantity || item.qty || 0;
-                                const rate = item.rate || 0;
-                                return (
-                                    <tr key={item.id}>
-                                        <td className="w-50">{item.name || item.desc}</td>
-                                        <td>{qty}</td>
-                                        <td>{preferences?.currency || 'Rs.'} {rate.toLocaleString()}</td>
-                                        <td className="text-right text-bold">
-                                            {preferences?.currency || 'Rs.'} {(qty * rate).toLocaleString()}
-                                        </td>
-                                    </tr>
-                                );
-                            }) : (
-                                <tr>
-                                    <td colSpan="4" className="empty-row">No items added yet.</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-
-                    {/* Financial Summary */}
-                    <div className="inv-summary-area">
-                        <div className="notes-block">
-                            <label>Terms & Notes</label>
-                            <p>{invoice.notes}</p>
-                            <p className="payment-method">Payment Terms: <strong>{invoice.paymentTerms}</strong></p>
-                        </div>
-                        <div className="calc-block">
-                            <div className="summary-row">
-                                <span>Subtotal</span>
-                                <span>{preferences?.currency || 'Rs.'} {subtotal.toLocaleString()}</span>
-                            </div>
-                            <div className="summary-row">
-                                <span>Tax ({invoice.taxRate}%)</span>
-                                <span>{preferences?.currency || 'Rs.'} {taxAmount.toLocaleString()}</span>
-                            </div>
-                            <div className="summary-row">
-                                <span>Delivery</span>
-                                <span>{preferences?.currency || 'Rs.'} {invoice.delivery.toLocaleString()}</span>
-                            </div>
-                            <div className="summary-row grand-total">
-                                <span>Total Amount Due</span>
-                                <span>{preferences?.currency || 'Rs.'} {total.toLocaleString()}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="inv-footer-bottom">
-                        <p>This is a computer generated document. Registration #29384-PN</p>
-                        <p>© 2024 Procurement Pro Systems. All rights reserved.</p>
-                    </div>
-
-                    {invoice.status === 'Paid' && (
-                        <div className="paid-stamp">PAID</div>
-                    )}
+            <div className="editor-preview-panel">
+                <div className="invoice-container-sheet" ref={previewRef} style={{ padding: 0, width: 'fit-content' }}>
+                    <InvoiceModern
+                        invoice={invoice}
+                        traderProfile={traderProfile}
+                        bankDetails={bankDetails}
+                        companyLogo={companyLogo}
+                        preferences={preferences}
+                    />
                 </div>
             </div>
         </div>

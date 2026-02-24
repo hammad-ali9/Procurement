@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { NavLink } from 'react-router-dom'
+import { useProcurement } from '../context/ProcurementContext'
 import './Sidebar.css'
 
 const navItems = [
@@ -11,8 +12,17 @@ const navItems = [
 const toolItems = [
     { label: 'Products', path: '/dashboard/products', icon: 'box' },
     { label: 'Create Quotation', path: '/dashboard/create-quotation', icon: 'file' },
-    { label: 'Quotation History', path: '/dashboard/quotation-history', icon: 'trend' },
-    { label: 'Automation', path: '/dashboard/automation', icon: 'zap', badge: 'BETA' },
+    { label: 'Quotation History', path: '/dashboard/quotation-history', icon: 'trend' }
+]
+
+const purchasingItems = [
+    { label: 'Create PR', path: '/dashboard/create-pr', icon: 'clipboard', color: 'cyan' },
+    { label: 'PR History', path: '/dashboard/pr-history', icon: 'list', color: 'cyan' },
+]
+
+const partyItems = [
+    { label: 'Suppliers', path: '/dashboard/suppliers', icon: 'users', color: 'violet' },
+    { label: 'Clients', path: '/dashboard/clients', icon: 'briefcase', color: 'blue' },
 ]
 
 const icons = {
@@ -23,10 +33,15 @@ const icons = {
     file: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>,
     trend: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg>,
     zap: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>,
+    clipboard: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" ry="1" /><line x1="9" y1="12" x2="15" y2="12" /><line x1="9" y1="16" x2="15" y2="16" /></svg>,
+    list: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>,
+    users: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>,
+    briefcase: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" /></svg>,
 }
 
 export default function Sidebar() {
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const { productsNotification } = useProcurement();
 
     return (
         <aside className={`sidebar-container ${isCollapsed ? 'collapsed' : ''}`}>
@@ -36,9 +51,9 @@ export default function Sidebar() {
                     <img src="/logo/logo.png" alt="Karobar Logo" className="sb-logo-img" />
                 </div>
 
-                <div className="sb-icon-group">
-                    <div className="sb-nav-divider"></div>
+                <div className="sb-nav-divider"></div>
 
+                <div className="sb-icon-group">
                     {navItems.map((item) => (
                         <NavLink
                             key={item.path}
@@ -51,10 +66,29 @@ export default function Sidebar() {
                             {icons[item.icon]}
                         </NavLink>
                     ))}
+                </div>
 
-                    <div className="sb-nav-divider" style={{ marginTop: '1rem' }}></div>
+                <div className="sb-nav-divider"></div>
 
+                <div className="sb-icon-group">
                     {toolItems.map((item) => (
+                        <NavLink
+                            key={item.path}
+                            to={item.path}
+                            className={({ isActive }) => `sb-icon-btn nav-icon-link ${isActive ? 'active' : ''}`}
+                            title={item.label}
+                            data-tooltip={item.label}
+                        >
+                            {icons[item.icon]}
+                            {item.label === 'Products' && productsNotification && <span className="sb-notif-dot"></span>}
+                        </NavLink>
+                    ))}
+                </div>
+
+                <div className="sb-nav-divider"></div>
+
+                <div className="sb-icon-group">
+                    {purchasingItems.map((item) => (
                         <NavLink
                             key={item.path}
                             to={item.path}
@@ -66,6 +100,24 @@ export default function Sidebar() {
                         </NavLink>
                     ))}
                 </div>
+
+                <div className="sb-nav-divider"></div>
+
+                <div className="sb-icon-group">
+                    {partyItems.map((item) => (
+                        <NavLink
+                            key={item.path}
+                            to={item.path}
+                            className={({ isActive }) => `sb-icon-btn nav-icon-link ${isActive ? 'active' : ''} ${item.color || ''}`}
+                            title={item.label}
+                            data-tooltip={item.label}
+                        >
+                            {icons[item.icon]}
+                        </NavLink>
+                    ))}
+                </div>
+
+                <div className="sb-nav-divider"></div>
 
                 <div className="sb-bottom-icons">
                     <NavLink
@@ -109,6 +161,8 @@ export default function Sidebar() {
                         </div>
                     </div>
 
+                    <div className="sb-nav-divider" style={{ width: '100%', margin: '1rem 0', opacity: 0.1 }}></div>
+
                     <div className="nav-section">
                         <div className="section-label">Tools</div>
                         <div className="nav-items-list">
@@ -121,7 +175,46 @@ export default function Sidebar() {
                                     <div className="active-indicator"></div>
                                     <span className="nav-icon">{icons[item.icon]}</span>
                                     <span className="nav-label">{item.label}</span>
+                                    {item.label === 'Products' && productsNotification && <span className="nav-notif-dot"></span>}
                                     {item.badge && <span className="beta-badge">{item.badge}</span>}
+                                </NavLink>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="sb-nav-divider" style={{ width: '100%', margin: '1rem 0', opacity: 0.1 }}></div>
+
+                    <div className="nav-section">
+                        <div className="section-label">Purchasing</div>
+                        <div className="nav-items-list">
+                            {purchasingItems.map((item) => (
+                                <NavLink
+                                    key={item.path}
+                                    to={item.path}
+                                    className={({ isActive }) => `nav-pill-item ${isActive ? 'active' : ''}`}
+                                >
+                                    <div className="active-indicator"></div>
+                                    <span className="nav-icon">{icons[item.icon]}</span>
+                                    <span className="nav-label">{item.label}</span>
+                                </NavLink>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="sb-nav-divider" style={{ width: '100%', margin: '1rem 0', opacity: 0.1 }}></div>
+
+                    <div className="nav-section">
+                        <div className="section-label">Parties</div>
+                        <div className="nav-items-list">
+                            {partyItems.map((item) => (
+                                <NavLink
+                                    key={item.path}
+                                    to={item.path}
+                                    className={({ isActive }) => `nav-pill-item ${isActive ? 'active' : ''} ${item.color || ''}`}
+                                >
+                                    <div className="active-indicator"></div>
+                                    <span className="nav-icon">{icons[item.icon]}</span>
+                                    <span className="nav-label">{item.label}</span>
                                 </NavLink>
                             ))}
                         </div>

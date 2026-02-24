@@ -258,6 +258,49 @@
     background: #f8fafc;
 }
 
+.inventory-table th:nth-child(2),
+.inventory-table td:nth-child(2) {
+    width: 300px;
+}
+
+.inventory-table th:nth-child(3),
+.inventory-table td:nth-child(3) {
+    width: 150px;
+}
+
+.inventory-table th:nth-child(4),
+.inventory-table td:nth-child(4) {
+    width: 100px;
+}
+
+.inventory-table th:nth-child(5),
+.inventory-table td:nth-child(5) {
+    width: 100px;
+}
+
+.inventory-table th:nth-child(6),
+.inventory-table td:nth-child(6) {
+    width: 180px;
+    text-align: left;
+}
+
+.inventory-table th:nth-child(7),
+.inventory-table td:nth-child(7) {
+    width: 120px;
+}
+
+.inventory-table th:nth-child(8),
+.inventory-table td:nth-child(8) {
+    width: 120px;
+    text-align: right;
+}
+
+.inventory-table th:nth-child(9),
+.inventory-table td:nth-child(9) {
+    width: 80px;
+    text-align: right;
+}
+
 .inventory-table td {
     padding: 1rem 1.5rem;
     border-bottom: 1px solid #f1f5f9;
@@ -287,18 +330,27 @@
     border: 1px solid #e2e8f0;
 }
 
+.product-name-with-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .product-name {
     font-weight: 700;
     color: var(--theme-black);
 }
 
-.sku-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    background: #f8fafc;
-    padding: 0.2rem 0.4rem;
+.p-new-badge {
+    background: #ff3366;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 1px 5px;
     border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 8px rgba(255, 51, 102, 0.3);
 }
 
 /* Badges */

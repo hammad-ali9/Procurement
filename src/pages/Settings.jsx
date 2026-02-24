@@ -12,6 +12,8 @@ export default function Settings() {
         setCompanyLogo,
         traderProfile,
         setTraderProfile,
+        bankDetails,
+        setBankDetails,
         addNotification,
         preferences,
         updatePreferences
@@ -24,12 +26,16 @@ export default function Settings() {
     // Local state for forms
     const [profileForm, setProfileForm] = useState(traderProfile)
     const [companyForm, setCompanyForm] = useState({
-        name: 'Karobar Enterprises',
-        email: 'billing@karobar.com',
-        officeAddress: '123 Business Way, Suite 100\nTech City, TC 54321',
-        phone: '+92 300 1234567',
-        taxId: 'NTN-7654321-0'
+        name: traderProfile.businessName || '',
+        email: traderProfile.email || '',
+        officeAddress: traderProfile.officeAddress || '',
+        phone: traderProfile.phone || '',
+        taxId: traderProfile.ntnNumber || '',
+        gstNumber: traderProfile.gstNumber || '',
+        vendorNumber: traderProfile.vendorNumber || '',
+        stampSignature: traderProfile.stampSignature || null
     })
+    const [bankForm, setBankForm] = useState(bankDetails)
     const [prefForm, setPrefForm] = useState({
         currency: preferences?.currency || 'PKR',
         timezone: preferences?.timezone || 'Asia/Karachi'
@@ -38,28 +44,62 @@ export default function Settings() {
     const [passwordForm, setPasswordForm] = useState({ current: '', new: '', confirm: '' })
 
     useEffect(() => {
-        if (currentUser) {
-            setProfileForm(prev => ({
-                ...prev,
+        if (currentUser && activeTab === 'profile') {
+            setProfileForm({
                 name: currentUser.displayName || '',
                 email: currentUser.email || ''
-            }))
+            })
         }
-        if (traderProfile) {
-            setCompanyForm(prev => ({
-                ...prev,
-                name: traderProfile.businessName || prev.name,
-                email: traderProfile.email || prev.email,
-                officeAddress: traderProfile.officeAddress || prev.officeAddress
-            }))
+    }, [currentUser, activeTab])
+
+    useEffect(() => {
+        if (traderProfile && activeTab === 'company') {
+            setCompanyForm({
+                name: traderProfile.businessName || '',
+                email: traderProfile.email || '',
+                officeAddress: traderProfile.officeAddress || '',
+                phone: traderProfile.phone || '',
+                taxId: traderProfile.ntnNumber || '',
+                gstNumber: traderProfile.gstNumber || '',
+                vendorNumber: traderProfile.vendorNumber || '',
+                stampSignature: traderProfile.stampSignature || null
+            })
         }
-        if (preferences) {
+    }, [traderProfile, activeTab])
+
+    useEffect(() => {
+        if (bankDetails && activeTab === 'bank') {
+            setBankForm(bankDetails)
+        }
+    }, [bankDetails, activeTab])
+
+    useEffect(() => {
+        if (preferences && activeTab === 'preferences') {
             setPrefForm({
                 currency: preferences.currency,
                 timezone: preferences.timezone
             })
         }
-    }, [currentUser, traderProfile, preferences])
+    }, [preferences, activeTab])
+
+    // Dirty Checks
+    const isProfileDirty = profileForm.name !== (currentUser?.displayName || '') ||
+        profileForm.email !== (currentUser?.email || '') ||
+        profileForm.role !== (traderProfile.role || '')
+
+    const isCompanyDirty = companyForm.name !== (traderProfile.businessName || '') ||
+        companyForm.email !== (traderProfile.email || '') ||
+        companyForm.officeAddress !== (traderProfile.officeAddress || '') ||
+        companyForm.phone !== (traderProfile.phone || '') ||
+        companyForm.taxId !== (traderProfile.ntnNumber || '') ||
+        companyForm.gstNumber !== (traderProfile.gstNumber || '') ||
+        companyForm.vendorNumber !== (traderProfile.vendorNumber || '') ||
+        companyForm.stampSignature !== traderProfile.stampSignature
+
+    const isBankDirty = JSON.stringify(bankForm) !== JSON.stringify(bankDetails)
+
+    const isPrefDirty = prefForm.currency !== preferences?.currency ||
+        prefForm.timezone !== preferences?.timezone
 
     // Preferences
     const [emailNotifs, setEmailNotifs] = useState(true)
@@ -108,7 +148,7 @@ export default function Settings() {
                 await updateUserEmail(profileForm.email)
             }
             setTraderProfile(prev => ({ ...prev, ...profileForm }))
-            addNotification('Profile updated successfully', 'success')
+            addNotification('Changes Saved Successfully', 'success')
         } catch (error) {
             console.error(error)
             addNotification('Failed to update profile. ' + error.message, 'error')
@@ -123,12 +163,31 @@ export default function Settings() {
             setTraderProfile(prev => ({
                 ...prev,
                 businessName: companyForm.name,
-                officeAddress: companyForm.officeAddress
+                email: companyForm.email,
+                officeAddress: companyForm.officeAddress,
+                phone: companyForm.phone,
+                ntnNumber: companyForm.taxId,
+                gstNumber: companyForm.gstNumber,
+                vendorNumber: companyForm.vendorNumber,
+                stampSignature: companyForm.stampSignature
             }))
-            addNotification('Company details updated', 'success')
+            addNotification('Changes Saved Successfully', 'success')
         } catch (error) {
             console.error(error)
             addNotification('Failed to update company details', 'error')
+        }
+        setIsLoading(false)
+    }
+
+    const handleBankSave = (e) => {
+        e.preventDefault()
+        setIsLoading(true)
+        try {
+            setBankDetails(bankForm)
+            addNotification('Changes Saved Successfully', 'success')
+        } catch (error) {
+            console.error(error)
+            addNotification('Failed to save bank details', 'error')
         }
         setIsLoading(false)
     }
@@ -163,6 +222,18 @@ export default function Settings() {
         }
     }
 
+    const handleStampUpload = (e) => {
+        const file = e.target.files[0]
+        if (file) {
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setCompanyForm(prev => ({ ...prev, stampSignature: reader.result }))
+                addNotification('Official stamp uploaded', 'success')
+            }
+            reader.readAsDataURL(file)
+        }
+    }
+
     const triggerLogoUpload = () => {
         fileInputRef.current.click()
     }
@@ -170,6 +241,11 @@ export default function Settings() {
     const removeLogo = () => {
         setCompanyLogo(null)
         addNotification('Company logo removed', 'info')
+    }
+
+    const removeStamp = () => {
+        setCompanyForm(prev => ({ ...prev, stampSignature: null }))
+        addNotification('Stamp removed', 'info')
     }
 
     return (
@@ -195,6 +271,13 @@ export default function Settings() {
                     >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="21" width="18" height="2" /><path d="M5 21V7l8-4 8 4v14" /><path d="M17 21v-8H7v8" /></svg>
                         Company Profile
+                    </button>
+                    <button
+                        className={`settings-nav-item ${activeTab === 'bank' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('bank')}
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg>
+                        Bank Details
                     </button>
                     <button
                         className={`settings-nav-item ${activeTab === 'preferences' ? 'active' : ''}`}
@@ -250,8 +333,8 @@ export default function Settings() {
                                     />
                                 </div>
                                 <div className="form-actions">
-                                    <button type="button" className="btn-secondary" onClick={() => setProfileForm(traderProfile)}>Cancel</button>
-                                    <button type="submit" className="btn-primary" disabled={isLoading}>
+                                    <button type="button" className="btn-secondary" onClick={() => setProfileForm({ name: currentUser?.displayName || '', email: currentUser?.email || '' })}>Cancel</button>
+                                    <button type="submit" className="btn-primary" disabled={isLoading || !isProfileDirty}>
                                         {isLoading ? 'Saving...' : 'Save Changes'}
                                     </button>
                                 </div>
@@ -292,22 +375,74 @@ export default function Settings() {
                                             type="text"
                                             value={companyForm.name}
                                             onChange={e => setCompanyForm({ ...companyForm, name: e.target.value })}
+                                            placeholder="e.g. Karobar Enterprises"
                                         />
                                     </div>
                                     <div className="form-group">
-                                        <label>Tax ID / TRN</label>
+                                        <label>Tax ID / NTN</label>
                                         <input
                                             type="text"
                                             value={companyForm.taxId}
                                             onChange={e => setCompanyForm({ ...companyForm, taxId: e.target.value })}
+                                            placeholder="e.g. 7654321-0"
                                         />
                                     </div>
                                 </div>
                                 <div className="form-row">
-                                    <div className="form-group full-width">
+                                    <div className="form-group">
                                         <label>Company Email</label>
-                                        <input type="email" value={companyForm.email} onChange={(e) => setCompanyForm({ ...companyForm, email: e.target.value })} />
-                                        <p className="field-desc">Used for billing and official document communications.</p>
+                                        <input
+                                            type="email"
+                                            value={companyForm.email}
+                                            onChange={(e) => setCompanyForm({ ...companyForm, email: e.target.value })}
+                                            placeholder="billing@company.com"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Phone Number</label>
+                                        <input
+                                            type="text"
+                                            value={companyForm.phone}
+                                            onChange={(e) => setCompanyForm({ ...companyForm, phone: e.target.value })}
+                                            placeholder="+92 XXX XXXXXXX"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>GST Number</label>
+                                        <input
+                                            type="text"
+                                            value={companyForm.gstNumber}
+                                            onChange={e => setCompanyForm({ ...companyForm, gstNumber: e.target.value })}
+                                            placeholder="e.g. 12-34-5678-901-23"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Vendor Number</label>
+                                        <input
+                                            type="text"
+                                            value={companyForm.vendorNumber}
+                                            onChange={(e) => setCompanyForm({ ...companyForm, vendorNumber: e.target.value })}
+                                            placeholder="e.g. V-98765"
+                                        />
+                                        <p className="field-desc">Unique ID assigned by your clients.</p>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Official Stamp / Signature</label>
+                                        <div className="stamp-uploader">
+                                            {companyForm.stampSignature ? (
+                                                <div className="stamp-preview">
+                                                    <img src={companyForm.stampSignature} alt="Stamp" />
+                                                    <button type="button" className="btn-remove-stamp" onClick={removeStamp}>×</button>
+                                                </div>
+                                            ) : (
+                                                <div className="stamp-dropzone">
+                                                    <input type="file" accept="image/*" hidden id="stamp-upload" onChange={handleStampUpload} />
+                                                    <label htmlFor="stamp-upload">Upload Stamp</label>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="form-row">
@@ -317,13 +452,89 @@ export default function Settings() {
                                             rows="3"
                                             value={companyForm.officeAddress}
                                             onChange={(e) => setCompanyForm({ ...companyForm, officeAddress: e.target.value })}
+                                            placeholder="Full physical address..."
                                         />
                                         <p className="field-desc">This address will be automatically used as the sender address on your invoices.</p>
                                     </div>
                                 </div>
                                 <div className="form-actions">
-                                    <button type="submit" className="btn-primary" disabled={isLoading}>
-                                        {isLoading ? 'Saving...' : 'Save Details'}
+                                    <button type="submit" className="btn-primary" disabled={isLoading || !isCompanyDirty}>
+                                        {isLoading ? 'Saving...' : 'Save Organization Details'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    )}
+
+                    {activeTab === 'bank' && (
+                        <div className="settings-panel animate-slideIn">
+                            <h2>Bank Details</h2>
+                            <p className="settings-subtitle">Capture your banking information for invoice payments.</p>
+
+                            <form onSubmit={handleBankSave} className="settings-form">
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Bank Name</label>
+                                        <input
+                                            type="text"
+                                            value={bankForm.bankName}
+                                            onChange={e => setBankForm({ ...bankForm, bankName: e.target.value })}
+                                            placeholder="e.g. Habib Bank Limited"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Account Title</label>
+                                        <input
+                                            type="text"
+                                            value={bankForm.accountTitle}
+                                            onChange={e => setBankForm({ ...bankForm, accountTitle: e.target.value })}
+                                            placeholder="e.g. Karobar Enterprises"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Account Number</label>
+                                        <input
+                                            type="text"
+                                            value={bankForm.accountNumber}
+                                            onChange={e => setBankForm({ ...bankForm, accountNumber: e.target.value })}
+                                            placeholder="000123456789"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>IBAN</label>
+                                        <input
+                                            type="text"
+                                            value={bankForm.iban}
+                                            onChange={e => setBankForm({ ...bankForm, iban: e.target.value })}
+                                            placeholder="PK00HABB000123456789"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>SWIFT / BIC Code</label>
+                                        <input
+                                            type="text"
+                                            value={bankForm.swiftCode}
+                                            onChange={e => setBankForm({ ...bankForm, swiftCode: e.target.value })}
+                                            placeholder="HABBPKKA"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Branch Name / Code</label>
+                                        <input
+                                            type="text"
+                                            value={bankForm.branchName}
+                                            onChange={e => setBankForm({ ...bankForm, branchName: e.target.value })}
+                                            placeholder="Main Boulevard Branch (0123)"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="form-actions">
+                                    <button type="submit" className="btn-primary" disabled={isLoading || !isBankDirty}>
+                                        {isLoading ? 'Saving...' : 'Save Bank Details'}
                                     </button>
                                 </div>
                             </form>
@@ -365,7 +576,7 @@ export default function Settings() {
                                     </div>
                                 </div>
                                 <div className="form-actions" style={{ border: 'none', paddingTop: '1rem' }}>
-                                    <button type="submit" className="btn-primary">Save Preferences</button>
+                                    <button type="submit" className="btn-primary" disabled={!isPrefDirty}>Save Preferences</button>
                                 </div>
                             </form>
 

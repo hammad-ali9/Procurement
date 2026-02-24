@@ -137,7 +137,7 @@ body {
 
 .input-group-new input:focus,
 .input-group-new textarea:focus {
-    background: #fff;
+    background: var(--bg-elevated);
     border-color: #D1D5DB;
     box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.03);
 }
@@ -273,7 +273,7 @@ body {
 }
 
 .btn-close-circle:hover {
-    background: #fff;
+    background: var(--bg-elevated);
     transform: scale(1.05);
 }
 
@@ -366,7 +366,7 @@ body {
     position: absolute;
     bottom: 25%;
     left: 8%;
-    background: #fff;
+    background: var(--bg-elevated);
     border-radius: 16px;
     padding: 1rem;
     width: 160px;

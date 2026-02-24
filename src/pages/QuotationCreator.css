@@ -33,7 +33,7 @@
 .input-group-lg {
     display: flex;
     gap: 1rem;
-    background: #fff;
+    background: var(--bg-elevated);
     padding: 0.5rem;
     border-radius: 16px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
@@ -72,7 +72,7 @@
 }
 
 .btn-clear-search {
-    background: #f1f5f9;
+    background: var(--bg-input);
     border: none;
     color: var(--text-muted);
     width: 34px;
@@ -87,13 +87,13 @@
 }
 
 .btn-clear-search:hover {
-    background: #e2e8f0;
-    color: #000;
+    background: var(--border-color);
+    color: var(--text-main);
     transform: rotate(90deg);
 }
 
 .btn-hero-action:hover {
-    background: #333;
+    background: var(--accent-red-hover);
     transform: scale(1.02);
 }
 
@@ -111,7 +111,7 @@
 }
 
 .qc-result-card {
-    background: #fff;
+    background: var(--bg-elevated);
     border-radius: 16px;
     border: 1px solid rgba(0, 0, 0, 0.06);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
@@ -165,7 +165,7 @@
     align-items: center;
     gap: 1.25rem;
     padding: 1.25rem;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--border-color);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     border-radius: 8px;
@@ -173,7 +173,7 @@
 }
 
 .product-item-row:hover {
-    background: #f8fafc;
+    background: var(--bg-input);
     transform: translateX(4px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
@@ -185,7 +185,7 @@
 .prod-img {
     width: 48px;
     height: 48px;
-    background: #f8fafc;
+    background: var(--bg-input);
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -204,11 +204,7 @@
     color: var(--theme-black);
 }
 
-.prod-sku {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    font-family: 'JetBrains Mono', monospace;
-}
+
 
 .prod-meta {
     text-align: right;
@@ -258,7 +254,7 @@
     text-align: center;
     gap: 1rem;
     min-height: 200px;
-    background: #fafafa;
+    background: var(--bg-card);
     border-radius: 12px;
     margin: 1rem;
     border: 2px dashed #e5e5e5;
@@ -300,7 +296,7 @@
 }
 
 .btn-proceed:hover:not(:disabled) {
-    background: #333;
+    background: var(--accent-red-hover);
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
@@ -393,7 +389,7 @@
     height: 32px;
     border-radius: 50%;
     border: 1.5px solid #fee2e2;
-    background: #fff;
+    background: var(--bg-elevated);
     color: #ef4444;
     cursor: pointer;
     display: flex;
@@ -435,13 +431,13 @@
 
 .qc-table td {
     padding: 1rem 1.5rem;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--border-color);
     font-size: 0.85rem;
     vertical-align: middle;
 }
 
 .qc-table tr:hover td {
-    background: #f8fafc;
+    background: var(--bg-input);
 }
 
 .qc-table tr:last-child td {
@@ -457,13 +453,13 @@
 .qc-product-img-mini {
     width: 32px;
     height: 32px;
-    background: #f1f5f9;
+    background: var(--bg-input);
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.1rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-color);
 }
 
 .qc-product-name-col {
@@ -477,16 +473,7 @@
     display: block;
 }
 
-.qc-sku-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    background: #f8fafc;
-    padding: 0.2rem 0.5rem;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
-    font-weight: 600;
-}
+
 
 /* Status Badges */
 .qc-status-badge {
@@ -500,7 +487,7 @@
 }
 
 .qc-status-badge.in-stock {
-    background: #ecfdf5;
+    background: rgba(34, 197, 94, 0.15);
     color: #059669;
 }
 
@@ -521,8 +508,8 @@
     gap: 0.5rem;
     padding: 0.4rem 0.8rem;
     border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    background: #fff;
+    border: 1px solid var(--border-color);
+    background: var(--bg-elevated);
     color: var(--text-muted);
     cursor: pointer;
     transition: all 0.2s;
@@ -533,7 +520,7 @@
 .btn-table-action:hover {
     border-color: #1e293b;
     color: #1e293b;
-    background: #f8fafc;
+    background: var(--bg-input);
 }
 
 .btn-table-action.add {
